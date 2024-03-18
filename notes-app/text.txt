@@ -1,0 +1,116 @@
+____________________________________________________________________________________________________________________________________________________________
+
+------------------------------------------------------------------------- Section- 3 -> Node.js Module System -------------------------------------------------------------------------
+____________________________________________________________________________________________________________________________________________________________
+------------------------------------------ 3.1 -> import node.js core modules ------------------------------------------
+
+---> The modules we use to work need to be imported using require function.
+---> FILE SYSTEM: module allows to access the files on OS we're working on.
+
+1. 1st method --- fs.writeFileSync and fs.writeFile:
+--->  takes two arguments:
+  1. file name;
+  2. the contents to insert in it.
+Note:
+-> creates a file and write some data into it (it there is no file in the working directory)
+-> overwrites content to a file (if the given file name already exists in the working directory)
+____________________________________________________________________________________________________________________________________________________________
+------------------------------------------ 3.2 -> import created files ------------------------------------------
+
+1. To load in a file that we create in the same working directory we use same require function
+2. To import a variable or any object
+  Note:
+    (everything in JS is treated as an object)
+  -> we have to use...
+    1. "module.exports = <variable/ object name>" to export the variable from a file
+    2. require statement in the file where we import the certain variable or an object
+____________________________________________________________________________________________________________________________________________________________
+------------------------------------------ 3.3 -> import NPM modules ------------------------------------------
+
+Intro:
+-> when we install nodejs into our local machine... npm also comes with it
+-> NPM was already installed on our machine... this gives us the access to differ NPM modules
+-> to use these NPM modules...
+
+1. initialize NPM in our project:
+-> run single cmd... <npm init -y>
+-> it initializes the NPM in our project and creates configuration file to manage all of the dependencies
+-> after initialization it adds "package.json" into working directory (we use this to manage all the installed packages)
+
+2. install the necessary modules (which we use inside our project)
+-> run the cmd... <npm i "package-name"@"version">
+  --- "i" for install
+-> when we install... package-lock.json and node_modules have been added into directory
+-> we load the package inside working file using... "require" function.
+
+ex: we installed "validator" package
+____________________________________________________________________________________________________________________________________________________________
+------------------------------------------ 3.4 -> Printing in color ------------------------------------------
+
+1. In this chapter,
+-> we install "chalk"
+  -> utility which allows us to customize how text gets printed to the console
+  -> customize the print logs for the server (print errors in "red" background and success messages in "green")
+2. CHALLENGE:
+-> Install "CHALK" and load it into app.js
+-> Use it to print string "SUCCESS" to the console in "green"
+____________________________________________________________________________________________________________________________________________________________
+------------------------------------------ 3.5 -> Global npm modules and nodemon ------------------------------------------
+intro:
+1. so far we worked with locally installed packages because the packages are listed in the package.json file.
+  -> these get loaded into our working file using "require()" function.
+2. when we install a package globally we do not load it in directly into our working files.
+
+-> We are going to install "NODEMON" which runs application whenever there is a change in our code.
+-> To install a package globally use... <npm i "package-name"@version -g>
+
+
+
+____________________________________________________________________________________________________________________________________________________________
+------------------------------------------------------------------------- Section- 4 -> File System and Command Line Args -------------------------------------------------------------------------
+____________________________________________________________________________________________________________________________________________________________
+------------------------------------------ 4.1 -> Intro: File System and Command Line Args ------------------------------------------
+intro to the section:
+-> We put all the things we learnt from previous section into this... to build a NOTES TAKING APPLICATION.
+-> we mainly focus on two things...
+  1. File System.                                 ---                 Used to store the user's node data
+  2. Command Line Arguments.                      ---                 Allows us to get the input from the User
+
+____________________________________________________________________________________________________________________________________________________________
+------------------------------------ 4.2 -> Getting input from Users ------------------------------------
+Intro:
+-> Getting input into application with cmd line arguments.
+
+1. In section-2, we have discussed about how the browser has window and document... and node has global and process
+2. So we can access the input passed on to the cmd line arguments using "PROCESS".
+3. On process we have a method called "argv" argument vector      -.-.-     (contains an array of arguments provided)
+4. process.argv[2] this gives us the intention of an user     ---     whether to add or remove a new notes.
+
+5.1 if user is trying to add a note...
+  -> get the note's title and body
+5.2 if user is removing the note...
+  -> need the title of the note that should be removed
+
+6. we provide command line options...
+  -> "--title" for title
+  ex: --title="This is Title-1"
+
+7. we got an entire title like this... <"--title="This is Title-1">
+  -> so we have to parse the command line arguments simply, without using extra code
+
+Next session: learn how to parse the command line Arguments
+____________________________________________________________________________________________________________________________________________________________
+------------------------------------ 4.3 -> Argument Parsing with Yargs: Part- 1 ------------------------------------
+
+1. --title="This is Title-1"
+  -> we have to extract key and value using YARGS       ---       used to parse the command line arguments.
+  -> command to install: <npm i yargs>
+  -> after installing import it into our working file
+
+2. log to console... <yargs.argv>
+  2.1 --- do not pass any arguments
+    -> which returns an object containing... underscore property (_: []) and "$0" property which has name of the file that was executed
+  2.2 --- pass arguments like... node app.cjs remove --title="This is Title-1"
+    -> returns a parsed object contains... {_: ['remove'], title: "This is Title-1", '$0': "app.cjs"}
+
+3.
