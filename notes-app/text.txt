@@ -100,7 +100,7 @@ Intro:
 
 Next session: learn how to parse the command line Arguments
 ____________________________________________________________________________________________________________________________________________________________
------------------------------------- 4.3 -> Argument Parsing with Yargs: Part- 1 ------------------------------------
+------------------------------------  4.3 -> Argument Parsing with Yargs: Part- 1 ------------------------------------
 
 1. --title="This is Title-1"
   -> we have to extract key and value using YARGS       ---       used to parse the command line arguments.
@@ -112,5 +112,56 @@ ________________________________________________________________________________
     -> which returns an object containing... underscore property (_: []) and "$0" property which has name of the file that was executed
   2.2 --- pass arguments like... node app.cjs remove --title="This is Title-1"
     -> returns a parsed object contains... {_: ['remove'], title: "This is Title-1", '$0': "app.cjs"}
+    -> returns the "remove" command and parsed options
 
-3.
+3. with yargs we can customize our own commands
+  -> In this notes_taking application     ---     user can "add", "remove" notes, "read" notes and "list" all the older notes
+  -> to create a command with the help of YARGS...
+
+    -> yargs.command({
+      command: 'command-name'... (add/ remove / read / list),
+      describe: 'description about the command',
+      handler: 'takes in a function that runs when someone uses the commands'
+    })
+
+    Note:
+    -> takes three properties... in which command name and the function are important
+    -> There is no need of "describe" property
+
+____________________________________________________________________________________________________________________________________________________________
+------------------------------------  4.4 -> Argument Parsing with Yargs: Part- 2 ------------------------------------
+Intro:
+-> In this section, we set up yargs to support options for each of our commands.
+
+ex:
+add command -> This needs the "title" and "body" of the note we are adding
+remove command -> needs specific title of note to remove it
+read command -> needs title that we are trying to read
+
+-> For this to be done... set up another property on the configuration object.
+-> "builder" is the property that takes an object of options
+-> "builder" takes another object that is "title" option as per our notes_taking application.
+
+  -> we can configure this title that it is required and the type must be of string
+  -> builder: {
+      title: {
+        demandOption: true,
+        type: string
+      }
+    }
+  Note:
+  -> demandOption     ---     sets the title option must be required and must be a type of string
+
+-> at last to parse those arguments with yargs.parse()... instead of console.log(yargs.argv)
+
+____________________________________________________________________________________________________________________________________________________________
+------------------------------------  4.5 -> Storing data with JSON ------------------------------------
+Intro:
+-> storing the data coming from the terminal.
+-> we store the data using the FS module.
+-> we store the data in the format of JSON.
+
+-> we have an array of objects...
+  -> each object represents a note and each object have various properties (like title and body).
+
+-> we created "playground" directory... in which we explore more about JSON.
