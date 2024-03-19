@@ -164,4 +164,33 @@ Intro:
 -> we have an array of objects...
   -> each object represents a note and each object have various properties (like title and body).
 
--> we created "playground" directory... in which we explore more about JSON.
+JSON and FS-Module:
+---------------------
+1. we created "playground" directory... in which we explore more about JSON.
+  -> JSON.stringify()     -.-.-   takes in an object... converts into JSON string
+  -> JSON.parse()     -.-.-     takes in JSON string... converts into an object
+
+2. we store stringified object using FS module... <fs.writeFileSync('file-name', 'data')>
+3. to read the data, we use readFileSync('file-name')
+  -> "readFileSync" returns buffered data that is binary data
+  -> buffered data converted into string using ".toString()" and to be parsed using ".parse()" to get an object.
+
+____________________________________________________________________________________________________________________________________________________________
+------------------------------------  4.6 -> Adding a note ------------------------------------
+
+1. How to export two or more things from a file and import things into another file:
+
+-> exporting things...
+-> export the things using module.exports with an object assigned to it.
+module.exports = {
+  function1: function1,
+  function2: function2
+}
+
+-> importing things...
+const functions from "file-path"
+
+-> to use the functions...
+functions.function1
+functions.function2
+
