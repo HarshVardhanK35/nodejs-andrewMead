@@ -1,0 +1,110 @@
+____________________________________________________________________________________________________________________________________________________________
+------------------------------------  4.5 -> Storing data with JSON ------------------------------------
+
+Intro:
+-> storing the data coming from the terminal.
+-> we store the data using the FS module.
+-> we store the data in the format of JSON.
+
+-> we have an array of objects...
+  -> each object represents a note and each object have various properties (like title and body).
+
+JSON and FS-Module:
+---------------------
+1. we created "playground" directory... in which we explore more about JSON.
+  -> JSON.stringify()     -.-.-   takes in an object... converts into JSON string
+  -> JSON.parse()     -.-.-     takes in JSON string... converts into an object
+
+2. we store stringified object using FS module... <fs.writeFileSync('file-name', 'data')>
+3. to read the data, we use readFileSync('file-name')
+  -> "readFileSync" returns buffered data that is binary data
+  -> buffered data converted into string using ".toString()" and to be parsed using ".parse()" to get an object.
+
+____________________________________________________________________________________________________________________________________________________________
+------------------------------------  4.8 -> ES6: Arrow functions ------------------------------------
+
+------------------------------------------------------------------------------Case- 1----------------------------------------------------------------------------
+
+1. Normal Function:
+----------------
+function square(x){
+  return x * x
+}
+
+2. Arrow Functions:
+----------------
+const square = () => {
+  return x * x
+}
+
+3. Simple Arrow Functions:
+-----------------------
+const square = (x) => x * x
+
+-> we can use simple arrow functions
+-> these are used when we have single return statement
+
+------------------------------------------------------------------------------Case- 2----------------------------------------------------------------------------
+
+THIS - keyword:
+---------------
+-> we know that... we can use "this" keyword which gives access to original object, in the method that was written inside in that object
+-> this is called "this - binding" that means we can use properties of that object.
+
+THIS inside Normal function:
+----------------------------
+const event = {
+  name: "Birthday",
+  printGuestList: function(){
+    clg(`Guest list for ${this.name}`)
+  }
+}
+
+THIS inside Arrow function:
+----------------------------
+-> Arrow functions can not bind their own "this" value.
+-> means we do not have access to "this" as a reference to the object we wrote the function in.
+-> returns "undefined" so use standard functions.
+
+------------------------------------------------------------------------------Case- 3----------------------------------------------------------------------------
+
+const partyEvent = {
+  name: "Birthday Party",
+  guestList:['Thors', 'Askledd', 'Thorkel'],
+  printGuestList: function(){
+    console.log(`Guest list for ${this.name}`)
+
+    this.guestList.forEach(function(guest){
+      console.log(`${guest} is attending ${this.name}`)
+    })
+  }
+}
+partyEvent.printGuestList()
+
+the result:
+-----------
+Guest list for Birthday Party
+Thors is attending undefined
+Askledd is attending undefined
+Thorkel is attending undefined
+
+Note:
+-----
+-> so standard functions do not work here
+-> arrow functions works perfectly... as they do not bind their own this value.
+-> arrow functions bind to this on their parent's functions in which they have called in
+
+const partyEvent = {
+  name: "Birthday Party",
+  guestList:['Thors', 'Askledd', 'Thorkel'],
+  printGuestList: function(){
+    console.log(`Guest list for ${this.name}`)
+
+    this.guestList.forEach((guest) => {
+      console.log(`${guest} is attending ${this.name}`)
+    })
+  }
+}
+partyEvent.printGuestList()
+
+-> used arrow functions which access to the this value in context in which they are created.

@@ -39,9 +39,7 @@ yargs.command({
 // create an Read command
 yargs.command({
   command: 'read',
-  handler: function(){
-    console.log('Reading a note')
-  }
+  handler: notesFunctions.listNotes()
 })
 
 // create an add command
