@@ -1,16 +1,16 @@
 const yargs = require('yargs')
 const chalk = require('chalk')
 
-const functions = require('./notes');
+const notesFunctions = require('./notes');
 
 // create an Add command
 yargs.command({
   command: 'add',
-  describe: 'Add a new note',
+  describe: 'Adds a new note',
   builder:{
     title:{
       demandOption: true, // title option is strictly required
-      type: 'string' // expecting a string always for title
+      type: "string" // expecting a string always for title
     },
     body:{
       demandOption: true,
@@ -18,15 +18,21 @@ yargs.command({
     }
   },
   handler: function(argv){
-    functions.addNotes(argv.title, argv.body)
+    notesFunctions.addNotes(argv.title, argv.body)
   }
 })
 
 // create an Remove command
 yargs.command({
   command: 'remove',
-  handler: function(){
-    console.log('Removing a note')
+  builder:{
+    title:{
+      demandOption: true,
+      type: "string"
+    }
+  },
+  handler: function(argv){
+    notesFunctions.removeNotes(argv.title)
   }
 })
 
