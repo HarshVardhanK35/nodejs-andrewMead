@@ -1,0 +1,53 @@
+Debugging Notes-Application:
+----------------------------
+
+Intro:
+------
+1. Debugging strategies
+2. Debugging tools that node provides us, to fix the broken apps. (Node-Debugger)
+____________________________________________________________________________________________________________________________________________________________
+
+1. Basic tool:
+  -> That Node provides... we have been already using this... "console.log()"
+
+2. Node Debugger:
+  -> Node's debugging tool... which integrates with chrome browser
+  -> with console.log... we have to manually list out the things we want to check on.
+  -> But with Debugger... we can add the Debugger statement one-time and once we use dev-tools we can look at everything.
+    {1}-> add the Debugger statement at middle of the code... that stops the application at that point of time.
+    {2}-> then we can use the dev-tools to see the values that we want.
+    {3}-> we could look at notes / duplicate notes / title / body (for notes-app)
+
+3. test case:
+-------------
+-> added "debugger" in the middle of the code for add functionality
+---
+-> so if we run...
+  -> node app.cjs add --title="t" --body="b"
+    -> we can not able to see anything on the console
+---
+-> but if we use "inspect"...
+  -> node inspect app.cjs add --title="t" --body="b"
+---
+-> if there is any error with above cmd use the below cmd...
+  -> node --inspect-brk app.cjs add --title="t" --body="b"
+---
+-> then open chrome, use specific url to inspect the code...
+  -> chrome://inspect
+---
+-> the debugging is paused... we have to start it manually
+____________________________________________________________________________________________________________________________________________________________
+
+Errors in nodejs:
+-----------------
+1. breaking down the working app by making a change to cause an error to show up.
+
+ex:
+---
+-> we are going to access a variable that has never been defined.
+-> run the program to see the error message
+
+-> when we run a program that has an error in it... in the console we can see a detailed error
+-> for the above case it would be... "ReferenceError: <variable> is not defined"
+-> it does not going to tell us what happened... so we have to figure it why it has happened on our own.
+-> so below the error message there could be a line... that points to the exact line where the error has happened

@@ -38,6 +38,7 @@ const removeNotes = (title) => {
 
   if(notes.length > notesChosen.length){
     console.log(chalk.inverse.green("Notes removed"))
+
     saveNotes(notesChosen)
   }
   else{

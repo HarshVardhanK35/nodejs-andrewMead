@@ -180,3 +180,8 @@ functions.function2
 
 ____________________________________________________________________________________________________________________________________________________________
 ------------------------------------  4.7 -> removing a note ------------------------------------
+
+Modifications:
+--------------
+1. used "find" instead of "filter" method to get the duplicateNote
+2. "find" returns only one item when it find a duplicate. but "filter" returns every duplicate item in the json data.
