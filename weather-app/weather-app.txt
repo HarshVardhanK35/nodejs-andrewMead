@@ -1,0 +1,110 @@
+____________________________________________________________________________________________________________________________________________________________
+------------------------------------  6.0 -> Asynchronous Basics ------------------------------------
+
+Intro:
+------
+
+1. Synchronous code:
+--------------------
+-> one line runs after the next... does not matter how much time each line takes to execute.\
+->
+
+SetTimeout:
+-------------
+-> Basic asynchronous functions that Node provides is SetTimeout
+-> This allows us to run code after a specific time has passed.
+-> SetTimeout is a functions and it takes two arguments (1: callback-function & 2: number)
+-> 1st arg: callback function will be executed after the time as 2nd arg in MS
+
+Program:
+--------
+console.log('Starting...');
+
+setTimeout(()=>{
+  console.log('After 2 second... setTimeout result')
+},2000)
+
+console.log('Stopping...');
+
+Note:
+-----
+1> In a Synchronous program-model:
+---
+  -> the code runs line by line.
+  -> if we wrote SetTimeout between starting and stopping messages
+    -> then we expect starting... SetTimeout result... stopping message as a result
+
+2> Asynchronous program-model:
+---
+  -> The order of result changes.
+  -> starting message... stopping message and after 2 seconds we could see the SetTimeout result
+  -> In Asynchronous and non-blocking code...
+    -> the node continue to execute the code below while it is waiting for those 2 seconds to pass
+
+program:
+--------
+Another Example for Asynchronous code:
+--------------------------------------
+console.log('Starting...');
+
+setTimeout(()=>{
+  console.log('After 2 seconds...')
+},2000)
+
+setTimeout(()=>{
+  console.log('After 0 seconds...')
+},0)
+
+console.log('Stopping...');
+
+Note- results:
+--------------
+In Asynchronous model:
+----------------------
+
+-> we expect the result as:
+---
+starting
+After 0 seconds...
+stopping
+After 2 seconds...
+
+-> But we got:
+---
+starting
+stopping
+After 0 seconds...
+After 2 seconds...
+
+Note:
+--- TO UNDERSTAND HOW IT HAPPENED, LEARN ABOUT CALL-STACKS, NODE- APIs, CALLBACK QUEUE
+
+____________________________________________________________________________________________________________________________________________________________
+------------------------------------  6.1 -> Call stack, Callback Queue, Node APIs and Event Loop ------------------------------------
+
+-> LEARNED ABOUT CALL-STACKS, NODE- APIs, CALLBACK QUEUE...
+
+-> Learned how an asynchronous model works....
+
+____________________________________________________________________________________________________________________________________________________________
+------------------------------------  6.2 -> Making HTTP Requests ------------------------------------
+
+Note: ----------- used weather-stack api for data
+
+Basic structure of a URL:
+--------------------------- http://api.weatherstack.com/current?key=value&key1=value1
+-> To access the current weather data, we use "/current"
+-> we have to provide API key and location that we are trying to fetch weather from --- we have to set up a query string
+
+query string:
+--------------- <endpoint>?key1=value1&key2=value2
+-> query string starts from the "?" mark and followed by key-value pairs
+
+example to access weather data:
+-------------------------------
+-> To access weather we used
+http://api.weatherstack.com/current?access_key=744850f453mshf93e44697219b34p15b512jsn64b8c41e66e0&query=37.8267,-122.4233
+
+-> we provided access_key that is api_key and query-key that has latitude and longitude values
+
+
