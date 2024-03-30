@@ -1,25 +1,62 @@
+// ------------------------------------------------- Weather -------------------------------------------------
 const request = require("postman-request");
+require('dotenv').config()
 
-const options = {
-  method: "GET",
-  url: "https://weather-by-api-ninjas.p.rapidapi.com/v1/weather",
-  params: { city: "Seattle" },
-  headers: {
-    "X-RapidAPI-Key": "744850f453mshf93e44697219b34p15b512jsn64b8c41e66e0",
-    "X-RapidAPI-Host": "weather-by-api-ninjas.p.rapidapi.com",
-  },
+const weatherApiKey = process.env.WEATHER_API_KEY;
+
+// const weatherCity = 'Moscow';
+
+const latitude = 55.7558;
+const longitude = 37.6176;
+
+const weatherOptions = {
+  // City
+  // url: `http://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(weatherCity)}&appid=${weatherApiKey}`
+  // Co-Ordinates
+  url: `http://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${weatherApiKey}`,
+
+  json: true // json --- true (automatically parses json responses)
 };
 
-request(options, (error, response, body) => {
-  if (error) {
-    console.error("Error:", error);
-  } else if (response.statusCode !== 200) {
-    console.error("Status:", response.statusCode);
-    console.error("Response:", body);
-  } else {
-    console.log("Body:", body);
-    // Parse the JSON response
-    const data = JSON.parse(body);
-    console.log("Weather:", data.current); // Accessing the 'current' weather data
+request(weatherOptions, (err, res) => {
+  if(err){
+    console.log(err)
   }
-});
+  else if(res.statusCode !== 200){
+    console.log(`Status: ${res.statusCode}`)
+    console.log(`Response: ${body}`)
+  }
+  else{
+    // console.log(res.body.main)
+    const temp = res.body.main.temp;
+    const feels_like = res.body.main.feels_like
+    console.log(`It is currently ${(temp - 273.15).toFixed(3)} degrees out. It feels like ${(feels_like- 273.15).toFixed(3)} degrees out`)
+  }
+})
+
+// ------------------------------------------------- Geo-Location -------------------------------------------------
+
+// const geoApiKey = process.env.GEOCODING_API_KEY;
+// const geoCity = 'Los Angeles'
+
+// const geoOptions = {
+//   url: `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(geoCity)}.json?access_token=${geoApiKey}`,
+//   json: true
+// }
+
+// request(geoOptions, (err, res, body) => {
+//   if(!err){
+//     const latitude = body.features[0].center[1]
+//     const longitude = body.features[0].center[0];
+
+//     console.log(latitude, longitude)
+
+//   }
+//   else if(res.statusCode !== 200){
+//     console.log(`Status: ${res.statusCode}`)
+//     console.log(`Response: ${body}`)
+//   }
+//   else{
+//     console.log(err)
+//   }
+// })
