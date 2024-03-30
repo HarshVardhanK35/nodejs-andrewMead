@@ -2,37 +2,41 @@
 const request = require("postman-request");
 require('dotenv').config()
 
+// Define latitude and longitude values
 const weatherApiKey = process.env.WEATHER_API_KEY;
 
-// const weatherCity = 'Moscow';
+let latitude = 55.7558;
+let longitude = 37.6176;
 
-const latitude = 55.7558;
-const longitude = 37.6176;
+if (latitude !== undefined && longitude !== undefined) {
+  const weatherOptions = {
+    url: `http://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${weatherApiKey}`,
 
-const weatherOptions = {
-  // City
-  // url: `http://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(weatherCity)}&appid=${weatherApiKey}`
-  // Co-Ordinates
-  url: `http://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${weatherApiKey}`,
-
-  json: true // json --- true (automatically parses json responses)
-};
-
-request(weatherOptions, (err, res) => {
-  if(err){
-    console.log(err)
+    json: true // json --- true (automatically parses json responses)
   }
-  else if(res.statusCode !== 200){
-    console.log(`Status: ${res.statusCode}`)
-    console.log(`Response: ${body}`)
-  }
-  else{
-    // console.log(res.body.main)
-    const temp = res.body.main.temp;
-    const feels_like = res.body.main.feels_like
-    console.log(`It is currently ${(temp - 273.15).toFixed(3)} degrees out. It feels like ${(feels_like- 273.15).toFixed(3)} degrees out`)
-  }
-})
+
+  request(weatherOptions, (err, res, body) => {
+    if (err) {
+      console.log('Error connecting to the weather service:', err.code);
+      console.log('Please check your internet connection and try again.');
+    }
+    else if (res.statusCode !== 200) {
+      console.log(`Status: ${res.statusCode}`);
+      console.log(`Response: ${body}`);
+    }
+    else if (res.body.Error) {
+      console.log(`Unable to find location: ${res.body.message}`);
+    }
+    else {
+      const temp = res.body.main.temp;
+      const feels_like = res.body.main.feels_like;
+      console.log(`It is currently ${(temp - 273.15).toFixed(3)} degrees out. It feels like ${(feels_like - 273.15).toFixed(3)} degrees out`);
+    }
+  })
+}
+else {
+  console.log('Error: Latitude or Longitude is not provided!');
+}
 
 // ------------------------------------------------- Geo-Location -------------------------------------------------
 
