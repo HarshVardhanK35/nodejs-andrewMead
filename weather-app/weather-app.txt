@@ -107,4 +107,41 @@ http://api.weatherstack.com/current?access_key=744850f453mshf93e44697219b34p15b5
 
 -> we provided access_key that is api_key and query-key that has latitude and longitude values
 
+____________________________________________________________________________________________________________________________________________________________
+------------------------------------  6.3 -> Customizing HTTP Requests ------------------------------------
 
+____________________________________________________________________________________________________________________________________________________________
+------------------------------------  6.4 -> An HTTP Request Challenge ------------------------------------
+
+____________________________________________________________________________________________________________________________________________________________
+------------------------------------  6.5 -> Handling Errors ------------------------------------
+
+____________________________________________________________________________________________________________________________________________________________
+------------------------------------  6.6 -> The CallBack function ------------------------------------
+
+ex: SetTimeout Function
+-----------------------------
+
+setTimeout(()=>{
+  console.log("Two seconds are up!")
+}, 2000);
+
+1. setTimeout is a function which requires 2 arguments
+  -> 1st is a function
+  -> 2nd is the total time(in ms) to wait to fire that 1st arg
+2. the 1st arg is the callback function
+
+-------------------------------------------------------------------------------- CALLBACK FUNCTION ----------------
+
+1. a function that is provided as an argument to another function.
+2. setTimeout is a node provided API
+
+Note: Every callback pattern is not an asynchronous function for example for-each loop is a synchronous but it takes a callback function
+-----
+3. the only time we use callback pattern is when we are working with a function that we never defined.
+
+Note:
+-------
+-> The return pattern is no longer to work for us when we start to do with asynchronous functions inside of normal functions.
+  -> So, callbacks play an important role and are used here.
+-> 
