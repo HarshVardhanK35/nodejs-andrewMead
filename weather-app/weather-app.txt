@@ -103,7 +103,7 @@ query string:
 example to access weather data:
 -------------------------------
 -> To access weather we used
-http://api.weatherstack.com/current?access_key=744850f453mshf93e44697219b34p15b512jsn64b8c41e66e0&query=37.8267,-122.4233
+http://api.weatherstack.com/current?access_key=api-key&query=37.8267,-122.4233
 
 -> we provided access_key that is api_key and query-key that has latitude and longitude values
 
@@ -149,7 +149,7 @@ Note:
 
 
 geo_url =
-https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(london)}.json?access_token=pk.eyJ1IjoiaGFyc2hhMjc2IiwiYSI6ImNsdWUwendhMzFueDUya3F1azF2cGRzMnMifQ.-zIpd-Jw-hkTxRsO1OvbJQ
+https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(london)}.json?access_token=api-token
 
 weather_url =
-http://api.openweathermap.org/data/2.5/weather?lat=51.5073&lon=-0.127647&appid=8c13c89a3627afaf6d03bcd426d2751b
+http://api.openweathermap.org/data/2.5/weather?lat=51.5073&lon=-0.127647&appid=api-key

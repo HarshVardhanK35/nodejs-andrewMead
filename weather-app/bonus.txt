@@ -1,0 +1,50 @@
+--------------------------------------------- Bonus: HTTP Requests without a library ---------------------------------------------
+
+1. we are going to learn how to make HTTP requests to a given URL without using the "request" NPM library
+2. there is no need of "yargs" and "request" npm libraries these make work a lot easier.
+3. so in this... we learn how to make requests using the modules that NODE provides.
+
+-> For practice we have created a file- {6-raw-http} in 'playground' directory
+here we gonna recreate a HTTP request... firing off the request to the server, getting and parsing the response.
+
+-> on nodejs.org -> learn about HTTP and HTTPS
+mainly focus on -> http.request(options, [callback]); https.request(options, [callback])
+
+-> as these are the core node modules we just simply load them in... there is no need to install in.
+const https = require('https');
+
+--------------------------------------------- captures the handling incoming data streams in Node.js:\
+1. Callback functions in core Node modules:
+-> These have access to the complete response body.
+-> but they operate in a streaming fashion, meaning they handle data in chunks rather than waiting for entire response body to arrive before processing it.
+-> This is done for efficiency, especially when dealing with large amounts of data.
+
+2. Listening to individual chunks:
+-> when dealing with streaming data, you often need to listen for individual data chunks as they arrive and then process them accordingly.
+
+3. Registering event handlers with response.on():
+-> The response.on() method is used to register event handlers for various events emitted by the response object.
+-> However, note that it's not used specifically to "start the process" but rather to handle events related to the response stream.
+-> These events can include "data", "end", "error", etc.
+
+3. Event name and callback function:
+-> When registering an event handler with response.on(), you provide the event name as the 1st argument and the callback function as the 2nd argument.
+-> In the case of handling incoming data, you would have to register a callback function for the "data" event, which fires each time a new chunk of data is received.
+
+4. Parsing buffer data:
+-> when data is received in the form of buffer objects, convert it to a string using toString() method
+-> then parse it, as JSON using JSON.parse()
+
+5. What is a request handler?
+-> A request handler is a function or piece of code that manages incoming requests in a web server or application.
+-> It processes the request, performs any necessary actions, and sends an appropriate response back to the client.
+
+6. res.on() is not a request handler.
+-> It is part of the response object (res) in Node.js, specifically used to listen for events emitted by the response stream.
+-> such as the "data" event when receiving data chunks or the "end" event when the response is complete.
+
+7. req.end() method is used to actually send the request. Until you call req.end(), the request is not sent.
+-> This method indicates that you have finished setting up the request and are ready to send it to the server.
+
+8. handling errors:
+-> 
