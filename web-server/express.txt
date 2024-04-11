@@ -1,0 +1,79 @@
+--------------------------------------- Express ---------------------------------------
+1. we are get to start creating simpler web servers... then we gonna create HTTP based APIs with database storage, authentication, email sending and more
+2. The tool we are going to use will be EXPRESS library which we can find on expressjs.com
+
+Intro to Express
+---------------------------------------------------------------------------------------
+Express----------
+1. it is one of the original NPM packages which makes it so easy to create web servers.
+-> whether it is static website or complex HTTP JSON based API to serve as the backend.
+
+2. to install express we need initialize NPM with --- <npm init -y>
+-> and then install express with <npm install express --save>
+
+3. created a new folder - src inside web-server folder which will be the starting point to our node app.
+-> src / app.js created... inside this grab the express library with <require('express')>
+
+explanation:
+1. const app = express()
+-> creates an instance of an Express application
+-> It's the starting point for building a web application using the Express framework
+
+2.app.get('/', (req, res) => {
+    res.send('Hello Express')
+  })
+-> sets up a route handler in an Express application for the root URL ("/").
+-> The (req, res) => { ... } is an arrow function that acts as the callback handler for when a request is made to the root URL.
+-> arrow fn takes two parameters... req (request object) and res (response object). Inside the function, it sends response "Hello Express" back to the client using res.send().
+-> This callback function is commonly referred to as a route handler or route callback.
+
+app.get('/', (req, res) => {
+  res.send('Hello Express')
+})
+
+app.get('/about', (req, res) => {
+  res.send('This is an about page')
+})
+
+app.get('/weather', (req, res) => {
+  res.send('You have visited weather page!')
+})
+
+-> using only res.send() - till now we are sending the text responses
+-> using only res.send() - but in reality we gonna send back an HTML response or else JSON which is consumed by the code.
+
+----------------- HTML response:
+-> using res.send('<h1>This is Home page!</h1>') --- send an HTML response
+
+----------------- JSON response:
+app.get('/help', (req, res) => {
+  res.send(
+    {
+      userName: 'John',
+      age: 23
+    }
+  )
+})
+-> in res.send() we provide either an array or an object... when we visit this page we gonna get JSON response back to us.
+-> express detects the object as res and automatically stringify the object
+
+app.get('/help', (req, res) => {
+  res.send(
+    [
+      {
+        userName: 'user1',
+        age: 23
+      },
+      {
+        userName: 'user2',
+        age: 22
+      }
+    ]
+  )
+})
+-> the res can be an array of objects
+
+---------------------------------------------------------------------------------------
+Note:
+-> if there is an entire directory to serve on the webpage we can not write entire code in res.send()
+
