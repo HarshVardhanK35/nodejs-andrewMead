@@ -1,9 +1,10 @@
 --------------------------------------- Express ---------------------------------------
 1. we are get to start creating simpler web servers... then we gonna create HTTP based APIs with database storage, authentication, email sending and more
 2. The tool we are going to use will be EXPRESS library which we can find on expressjs.com
+______________________________________________________________________________________________________________________________________________________________________________
 
 Intro to Express
----------------------------------------------------------------------------------------
+--------------------------------------------------------
 Express----------
 1. it is one of the original NPM packages which makes it so easy to create web servers.
 -> whether it is static website or complex HTTP JSON based API to serve as the backend.
@@ -72,8 +73,117 @@ app.get('/help', (req, res) => {
   )
 })
 -> the res can be an array of objects
+______________________________________________________________________________________________________________________________________________________________________________
 
----------------------------------------------------------------------------------------
 Note:
 -> if there is an entire directory to serve on the webpage we can not write entire code in res.send()
 
+1. To serve the HTML CSS and JS files with images and videos etc. apparently which contains bigger code which is hard to include in app.js
+2. so create a public folder in which these files goes in.
+3. How to include these files inside express app so that app could serve them.
+
+-> To serve these files in the public directory, we need path to public folder
+    -> it can not be a relative path. It need to be an absolute path.
+    -> to point public folder... we have two variables that are provided by node... (__dirname, __filename)
+    -> if we log these two variables inside a file
+        -> ex: if we log (__dirname, __filename) to the console from app.js
+                then it returns...
+              >> for __dirname... rootPath/../src
+                -> absolute path to the directory in which the file exists
+              >> for __filename... rootPath/../src/fileName
+                -> absolute path in which the file exists and file itself
+-> we need to point the exact path where the public folder exists. so we need a core node module that is Path_module
+
+------------------- Path_module:
+1. path module provides us methods to make it easy to manipulate string paths.
+2. we are gonna use only one that is path.join()
+
+-> load that core module inside app.js <const path = require('path')>
+
+console.log(__dirname)
+-> points to the directory where the app.js exists
+
+// Joins all the paths provided as args and results a normal path
+console.log(path.join(__dirname, '../public'))
+
+-> now we have to configure express to serve the public directory using app.use()
+
+------------------ app.use():
+1. app.use() a middleware function.
+2. used to mount a middleware functions at a specified path.
+
+------------------ MIDDLEWARE FUNCTION:
+1. Middleware functions in Express
+-> have access to the request object (req), response object (res), and next middleware function in application’s request-response cycle.
+-> They are essentially functions that run between receiving the request and sending the response.
+
+2. Middleware functions can perform the following tasks:
+  -> Execute code.
+  -> Make changes to the request and response objects.
+  -> End the request-response cycle.
+  -> Call the next middleware function in the stack.
+
+3. app.use(express.static(path.join(__dirname, "../public")))
+-> here, express.static() is a built-in middleware function that takes root directory path
+-> which serves static files and assets from a directory.
+
+4. created about.html and help.html with HTML templates
+-> visited http://localhost:3000/about.html and http://localhost:3000/help.html to view the outputs
+
+Note:
+1. 'express.static()' middleware serves static content, meaning files that don't change dynamically.
+______________________________________________________________________________________________________________________________________________________________________________
+
+Note:
+1. till now we have learnt how to include static HTML files
+2. How can we include other assets like CSS files, client side JS and images and much more.
+______________________________________________________________________________________________________________________________________________________________________________
+
+Note:
+1. we learn how to render dynamic web pages using express with "template" engine.
+2. The template engine that we are gonna set up is handle bars.
+
+------------------------- Handle Bars:
+handle bars allows us to do two things:
+1. render dynamic documents.
+2. easily create code that we can reuse across pages.
+
+-> if we have to include a feature in different HTML pages... we have to copy that code to different pages... without handle bars
+-> with handle bars... we can reuse the same feature in different pages.
+
+------------------------- NPM modules:
+1. npm handle bars:
+  -> low level library implements handlebars in JS
+  -> we have to use handle bars with our express server... but it isn't happen like that
+    -> so we use a library like a plugin for express... that is "npm hbs"
+      -> this integrates handle bars into express
+
+2. npm hbs:
+  -> hbs uses handle bars behind the scenes... which helps to integrate handle bars with express.
+
+3. npm i hbs >> to install hbs
+
+4. setting up hbs into express.
+  -> app.set()
+    -> which allows us to set configurations and properties which configures the express behavior
+    -> which takes key value pairs as strings.
+  -> app.set('view engine', 'hbs')
+    -> which sets up handle bars >>> we use it to create some dynamic templates.
+
+5. folder structure for views of handle bars:
+  -> create a folder "views" >>> we can put our handle bar views.
+    -> create a file "index.hbs"
+
+6. handle bars
+  -> this is nothing more than HTML with more features to inject dynamic values.
+
+7. to serve hbs files
+* app.get() >>> used to define routes for handling HTTP GET requests
+
+  -> we have to set up a route using app.get()
+    -> we have used res.send() to write HTML snippets, JSON data to user
+
+  -> but we have to use res.render() >>> which allows us to render our views
+    -> we render our HBS templates
+    -> it just takes the name of the file that it renders
+      -> ex: if we want to render index.hbs then it takes index as its arg

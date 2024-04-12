@@ -1,8 +1,27 @@
 const express = require('express');
+const path = require('path');
 
 // variable app which stores express application by calling express()
 // express() - function - does not take any arguments - instead we configure our server
-const app = express()
+const app = express();
+
+// path.join()-> Joins all the paths provided as args and results a normal path
+// path to public folder
+const publicDirectoryPath = path.join(__dirname, "../public")
+
+// middleware to serve files
+app.use(express.static(publicDirectoryPath))
+
+// Set the views directory to the correct path
+app.set('views', path.join(__dirname, '../views'));
+
+// app.set() >>> setting up hbs into express
+app.set('view engine', 'hbs');
+
+// to render index.hbs inside views directory
+app.get('/', (req, res) => {
+  res.render('index')
+})
 
 /*
  * set up our server to send a response when user tries a specific route (access /home, /about )
@@ -12,37 +31,37 @@ const app = express()
      * res (response) -> contains bunch of methods allows us to customize what we send back to the user
          * res.send()-> which sends some response to the user
 */
-app.get('/', (req, res) => {
-  res.send("<h1>Home Page!</h1>")
-})
+// app.get('/', (req, res) => {
+//   res.send("<h1>Home Page!</h1>")
+// })
 
-app.get('/help', (req, res) => {
-  res.send(
-    [
-      {
-        userName: 'user1',
-        age: 23
-      },
-      {
-        userName: 'user2',
-        age: 22
-      }
-    ]
-  )
-})
+// app.get('/help', (req, res) => {
+//   res.send(
+//     [
+//       {
+//         userName: 'user1',
+//         age: 23
+//       },
+//       {
+//         userName: 'user2',
+//         age: 22
+//       }
+//     ]
+//   )
+// })
 
-app.get('/about', (req, res) => {
-  res.send('<h1>About page!</h1>');
-})
+// app.get('/about', (req, res) => {
+//   res.send('<h1>About page!</h1>');
+// })
 
-app.get('/weather', (req, res) => {
-  res.send(
-    {
-      forecast: "10 degrees out",
-      location: "London"
-    }
-  )
-})
+// app.get('/weather', (req, res) => {
+//   res.send(
+//     {
+//       forecast: "10 degrees out",
+//       location: "London"
+//     }
+//   )
+// })
 
 /*
  * at last we start the server to start... we have to use one more function that is... app.listen()
