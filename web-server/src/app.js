@@ -5,32 +5,57 @@ const path = require('path');
 // express() - function - does not take any arguments - instead we configure our server
 const app = express();
 
-// path.join()-> Joins all the paths provided as args and results a normal path
-// path to public folder
+/*
+ * ------------------- _STATIC FILES_ -------------------
+ * path.join()-> Joins all the paths provided as args and results a normal path
+ * path to public folder
+*/
 const publicDirectoryPath = path.join(__dirname, "../public")
 
-// middleware to serve files
+// middleware to serve _STATIC_ files
 app.use(express.static(publicDirectoryPath))
 
+// _DYNAMIC_
 // Set the views directory to the correct path
 app.set('views', path.join(__dirname, '../views'));
 
+// _DYNAMIC_
 // app.set() >>> setting up hbs into express
 app.set('view engine', 'hbs');
 
 // to render index.hbs inside views directory
 app.get('/', (req, res) => {
-  res.render('index')
+  res.render('index', {
+    title: 'Weather Application',
+    name: "user-1"
+  })
+})
+
+app.get('/about', (req, res) => {
+  res.render('about', {
+    title: "This is about page",
+    name: "Weather-App organization"
+  })
+})
+
+app.get('/help', (req, res) => {
+  res.render('help', {
+    title: "This is help page",
+    number: "123-4567-890"
+  })
 })
 
 /*
+ * ------------------------------------ setup _STATIC_ files ------------------------------------
  * set up our server to send a response when user tries a specific route (access /home, /about )
  * app.get() takes 2 args... route and a callback fn which tell what to do when someone visits the specific route
  * the CB fn takes in 2 objects those are req, res...
      * req (request)  -> incoming request to the server
      * res (response) -> contains bunch of methods allows us to customize what we send back to the user
          * res.send()-> which sends some response to the user
+  *
 */
+
 // app.get('/', (req, res) => {
 //   res.send("<h1>Home Page!</h1>")
 // })

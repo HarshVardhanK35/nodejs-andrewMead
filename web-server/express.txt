@@ -185,5 +185,23 @@ handle bars allows us to do two things:
 
   -> but we have to use res.render() >>> which allows us to render our views
     -> we render our HBS templates
-    -> it just takes the name of the file that it renders
+    -> converts into HTML file and gets that back to user
+    -> it takes the name of the file that it renders
       -> ex: if we want to render index.hbs then it takes index as its arg
+    -> 2nd arg is an object
+      -> which contains values so that the view can able to access.
+
+  -> so to render dynamically we use an object with key-value pairs inside express app >>> this can be used by index.hbs file using HBS syntax
+  -> to inject a value from express app into hbs file we open and close two curly braces < {{}} >
+  -> so we reference the keys inside hbs file {{key1}}
+
+------------------ code- snippet > app.js:
+app.get('/', (req, res) => {
+  res.render('index', {
+    title: 'Weather Application',
+    name: "user-1"
+  })
+})
+------------------ code- hbs> index.hbs:
+<h1>{{title}}</h1>
+<p>{{name}}</p>
