@@ -1,6 +1,6 @@
 const express = require('express');
 const path = require('path');
-const hbs = require('hbs')
+const hbs = require('hbs');
 
 // variable app which stores express application by calling express()
 // express() - function - does not take any arguments - instead we configure our server
@@ -98,6 +98,25 @@ app.get('/help', (req, res) => {
 //     }
 //   )
 // })
+
+// for articles attached with routes that are undefined > > > (/help/* or /about/* or /*)
+app.get('/help/*', (req, res) => {
+  res.render('404', {
+    title: "404",
+    name: "user",
+    errorMessage: "Help article not found!"
+  })
+})
+
+
+// 404 page
+app.get("*", (req, res) => {
+  res.render('404', {
+    title: "404",
+    name: "user",
+    errorMessage: "404 Page not found!"
+  })
+})
 
 /*
  * at last we start the server to start... we have to use one more function that is... app.listen()

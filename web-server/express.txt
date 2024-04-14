@@ -231,4 +231,11 @@ ex: headers and footers are such features which can be used on different parts o
     -> nodemon app.js -e js, hbs
   -> -e flag followed by file extensions
 3.
+______________________________________________________________________________________________________________________________________________________________________________
 
+------------------------------------------- How to setup a 404 page for express server
+1. app.get()
+
+-> app.get('*', (req, res) => {
+  res.send("Page not found!")
+})
