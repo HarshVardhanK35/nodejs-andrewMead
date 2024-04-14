@@ -56,6 +56,12 @@ app.get('/help', (req, res) => {
   })
 })
 
+app.get('/weather', (req, res) => {
+  res.send({
+    
+  })
+})
+
 /*
  * ------------------------------------ setup _STATIC_ files ------------------------------------
  * set up our server to send a response when user tries a specific route (access /home, /about )

@@ -1,0 +1,56 @@
+----------------------------------------------- Access API from Browser -----------------------------------------------
+Intro >>>
+...
+1. learn how to create own API endpoints
+2. Learn how to access them
+
+process of a webpage >>>
+....
+-> what is needed for a browser to communicate with server passing an address along
+-> then the server needs to convert that address into a forecast and pass it back to the browser, so the browser render the passed data on the webpage.
+
+//\\ To get the above process to be done we must learn how to create own HTTP JSON endpoints with Express
+
+------------------------------------------------------------------------------------- The Query String
+Goal:
+-> allow users to fetch forecast data of their location from Weather webpage... // Instead of running a command from the terminal of VS-Code
+-> create a form so the users could type their address as input... // click a button to show up the weather details
+-> gonna use the route created which is a weather route { /weather }
+-> so, use the geocode and forecast functions we created earlier inside weather route... // then it will send JSON data back to the browser
+
+How?
+...
+how the browser sends the address from the form to the route... // to get this done, we use query-string
+
+Query-String >>>
+...
+-> so the browser provides us the query string as part of the URL
+-> server then read the query string value to get the address
+
+//\\ learn by creating URL that sends back JSON... // experiment with query strings
+
+>>> query string for short (qs):
+-> qs are provided at the end of the URL starts with question mark and provided with key-value pairs to pass the additional info to server
+
+-> as we are creating the server we can give support to as many query strings as we wanted to.
+ex >>> url: https://localhost:3000/products?key=value
+
+-> so, we are passing one qs... // if we wanted more we separate them with ampersand
+ex >>> url: https://localhost:3000/products?key=value&key1=value1
+
+How?
+...
+-> how to access these strings from url inside the server
+
+-> the qs information can be get from the express route handler that is {app.get()}
+-> the qs info is lies within the "req" object
+
+req >>>
+...
+-> "request" has a property on that which is query
+-> query itself is an object which contains lot of info about qs
+-> log the req.query to the console... // we get an object on to the console as a result
+-> request object has been parsed by the express
+
+req.query.key1 >>> returns value1
+req.query.key2 >>> returns value2

@@ -6,7 +6,7 @@ const geoApiKey = process.env.GEOCODING_API_KEY;
 const geoCode = (city, callback) => {
   if (city !== undefined) {
     const geoOptions = {
-      url: `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(city)}.json?access_token=${geoApiKey}`,
+      url: `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(city)}.json?access_token=${geoApiKey}&limit=1`,
       json: true, // json --- true (automatically parses json responses)
     };
     request(geoOptions, (err, res, body) => {
