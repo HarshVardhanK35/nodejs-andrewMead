@@ -1,5 +1,6 @@
 const express = require('express');
 const path = require('path');
+const hbs = require('hbs')
 
 // variable app which stores express application by calling express()
 // express() - function - does not take any arguments - instead we configure our server
@@ -10,37 +11,47 @@ const app = express();
  * path.join()-> Joins all the paths provided as args and results a normal path
  * path to public folder
 */
+// define static paths for express
 const publicDirectoryPath = path.join(__dirname, "../public")
 
 // middleware to serve _STATIC_ files
 app.use(express.static(publicDirectoryPath))
 
-// _DYNAMIC_
-// Set the views directory to the correct path
-app.set('views', path.join(__dirname, '../views'));
+// * ------------------- _DYNAMIC_FILES_ -------------------
+const viewsPath = path.join(__dirname, '../templates/views')
+const partialsPath = path.join(__dirname, '../templates/partials')
 
-// _DYNAMIC_
-// app.set() >>> setting up hbs into express
+/*
+ *_DYNAMIC_PATHS_ & _HANDLE_BARS_ -> set handle bars engine and views directory location
+ * Set the views directory to the correct path
+ * define dynamic paths for express config
+*/
+app.set('views', viewsPath);
 app.set('view engine', 'hbs');
+
+// configure partials with HBS - takes in path
+hbs.registerPartials(partialsPath)
 
 // to render index.hbs inside views directory
 app.get('/', (req, res) => {
   res.render('index', {
-    title: 'Weather Application',
-    name: "user-1"
+    title: 'Weather Application- Home page',
+    name: "user-1",
+    number: "123-4567-890"
   })
 })
 
 app.get('/about', (req, res) => {
   res.render('about', {
-    title: "This is about page",
-    name: "Weather-App organization"
+    title: "About page",
+    name: "Weather-App organization",
+    number: "123-4567-890"
   })
 })
 
 app.get('/help', (req, res) => {
   res.render('help', {
-    title: "This is help page",
+    title: "Help page",
     number: "123-4567-890"
   })
 })

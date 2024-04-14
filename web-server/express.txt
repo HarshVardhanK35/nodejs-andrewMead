@@ -165,33 +165,35 @@ handle bars allows us to do two things:
 
 4. setting up hbs into express.
   -> app.set()
-    -> which allows us to set configurations and properties which configures the express behavior
-    -> which takes key value pairs as strings.
+    -> assigns settings name to value...
+      -> used to configure the behavior of server
+  -> which allows us to set configurations and properties which configures the express behavior.
   -> app.set('view engine', 'hbs')
-    -> which sets up handle bars >>> we use it to create some dynamic templates.
+    -> which sets up handle bars > > > we use it to create some dynamic templates.
 
 5. folder structure for views of handle bars:
-  -> create a folder "views" >>> we can put our handle bar views.
+  -> create a folder "views" > > > we can put our handle bar views.
     -> create a file "index.hbs"
 
 6. handle bars
   -> this is nothing more than HTML with more features to inject dynamic values.
 
 7. to serve hbs files
-* app.get() >>> used to define routes for handling HTTP GET requests
+* app.get() > > > used to define routes for handling HTTP GET requests
 
   -> we have to set up a route using app.get()
     -> we have used res.send() to write HTML snippets, JSON data to user
 
-  -> but we have to use res.render() >>> which allows us to render our views
-    -> we render our HBS templates
-    -> converts into HTML file and gets that back to user
-    -> it takes the name of the file that it renders
-      -> ex: if we want to render index.hbs then it takes index as its arg
-    -> 2nd arg is an object
-      -> which contains values so that the view can able to access.
+  -> but we have to use res.render()
+    > > > which allows us to render our views
+  -> we render our HBS templates
+  -> converts into HTML file and gets that back to user
+  -> it takes the name of the file that it renders
+    -> ex: if we want to render index.hbs then it takes index as its arg
+  -> 2nd arg is an object
+    -> which contains values so that the view can able to access.
 
-  -> so to render dynamically we use an object with key-value pairs inside express app >>> this can be used by index.hbs file using HBS syntax
+  -> so to render dynamically we use an object with key-value pairs inside express app > > > this can be used by index.hbs file using HBS syntax
   -> to inject a value from express app into hbs file we open and close two curly braces < {{}} >
   -> so we reference the keys inside hbs file {{key1}}
 
@@ -205,3 +207,28 @@ app.get('/', (req, res) => {
 ------------------ code- hbs> index.hbs:
 <h1>{{title}}</h1>
 <p>{{name}}</p>
+______________________________________________________________________________________________________________________________________________________________________________
+
+Note:
+1. In this we learn how to create partials with handle bars.
+2. Learn to create little templates which are the part of a webpages.
+
+ex: headers and footers are such features which can be used on different parts of a web page.
+-> creating such parts to reuse across multiple pages on our whole webpage.
+
+3. To work with partials:
+-> load in HBS as a package > > > const hbs = require('hbs');
+-> create a main directory (templates)... in that create two sub directories (partials, views).
+-> hbs.registerPartials(partialsPath) > > > which takes the path to the directory
+-> created a header.hbs which has header tag which will be used over other main routes
+-> to load in the partials in a webpage
+  -> we use < {{>partial-file_name}} > inside index or about or help pages
+    -> ex: {{>header}} here header is the file we have created inside partial directory
+
+------------- Important Note:
+1. nodemon watches over files with JS extension only
+2. to set nodemon to watch over other file extensions we have to use a command.
+    -> nodemon app.js -e js, hbs
+  -> -e flag followed by file extensions
+3.
+
