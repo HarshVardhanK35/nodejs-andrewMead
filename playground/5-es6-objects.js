@@ -44,7 +44,13 @@ const product = {
 // console.log(rating)
 
 // -------------------------- destructuring inside a function --------------------------
-// const transaction = (transactionType, { label, price, stock}) => {
-//   console.log(`The transaction-type is ${transactionType} \nproduct: ${label}; price: ${price} \nproducts-left: ${stock - 1}`  )
-// }
-// transaction('order', product)
+const products = {
+  label: "white notes",
+  price: 35,
+  stock: 250,
+  salePrice: undefined
+}
+const transaction = (transactionType, { label, price, stock= 0} = {}) => {
+  console.log(transactionType, label, stock)
+}
+transaction('order')

@@ -1,20 +1,28 @@
-<!-- DOCTYPE to specify which type of doc this is... so it is html type -->
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
+  <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
-  <header>
-    <h1>{{>header}}</h1>
-  </header>
 
-  <p>created by: {{name}}</p>
+  {{>header}}
 
-  <footer>
-    <h3>{{>footer}}</h3>
-  </footer>
+  <p>This site to get exact Weather for a city</p>
+
+  <form>
+    <input placeholder="Type city name" type="">
+    <button>Search</button>
+  </form>
+
+  <p id="message-1"></p>
+  <p id="message-2"></p>
+
+  {{>footer}}
+
+  <script src="/js/script.js"></script>
 </body>
 </html>

@@ -54,3 +54,26 @@ req >>>
 
 req.query.key1 >>> returns value1
 req.query.key2 >>> returns value2
+
+------------------------------------------------------------------------------------- Create a search form and handling it!
+const cityForm = document.querySelector('form');
+
+cityForm.addEventListener('submit', (e) => {
+  console.log('test')
+})
+
+explanation >>>
+1. add an event listener on to the form... when the form is submitted that is a submit event is fired
+2. every time an event 'submit' is fired the callback function gets fired
+
+error >>>
+3. there is an error... that every time this event gets fired off that is when we click on "search" button... the browser gets refreshed completely
+4. to solve this add < e.preventDefault() >
+
+const cityForm = document.querySelector('form');
+cityForm.addEventListener('submit', (e) => {
+  e.preventDefault()
+  console.log('test')
+})
+
+-> this prevents the default behavior... which is to refresh the browser
