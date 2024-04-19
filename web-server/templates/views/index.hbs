@@ -4,25 +4,36 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
+  <title>Homeri chelli b</title>
+  {{!-- to link a fav icon path to img must be specified in "href"--}}
+  <link rel="icon" href="">
   <link rel="stylesheet" href="/css/styles.css">
 </head>
+
 <body>
 
-  {{>header}}
+  <div class="main-content">
 
-  <p>This site to get exact Weather for a city</p>
+    {{>header}}
 
-  <form>
-    <input placeholder="Type city name" type="">
-    <button>Search</button>
-  </form>
+    <p id="info">Use this page to get exact Weather for a city</p>
 
-  <p id="message-1"></p>
-  <p id="message-2"></p>
+    <div id="form">
+      <form>
+        <input placeholder="Type city name" type="">
+        <button>Search</button>
+      </form>
+
+
+      <p id="message-1"></p>
+      <p id="message-2"></p>
+    </div>
+
+  </div>
 
   {{>footer}}
 
   <script src="/js/script.js"></script>
 </body>
+
 </html>

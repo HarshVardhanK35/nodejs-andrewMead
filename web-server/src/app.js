@@ -5,7 +5,6 @@ const hbs = require("hbs");
 // importing functions
 const geocode = require("./utils/geocode.js");
 const forecast = require("./utils/forecast.js");
-const { error } = require("console");
 
 // variable app which stores express application by calling express()
 // express() - function - does not take any arguments - instead we configure our server
@@ -48,16 +47,19 @@ app.get("/", (req, res) => {
 
 app.get("/about", (req, res) => {
   res.render("about", {
-    title: "About page",
-    name: "Weather-App organization",
+    title: "About",
+    details: "WEATHER insider - New York, NY",
+    name: "Weather Forecast department",
     number: "123-4567-890",
   });
 });
 
 app.get("/help", (req, res) => {
   res.render("help", {
-    title: "Help page",
+    title: "Help",
     number: "123-4567-890",
+    address: "WEATHER insider - New York, NY",
+    footer: "Weather Department 2024 ©. All rights reserved."
   });
 });
 
@@ -142,7 +144,7 @@ app.get("*", (req, res) => {
   res.render("404", {
     title: "404",
     name: "user",
-    errorMessage: "404 Page not found!",
+    errorMessage: "Page not found!",
   });
 });
 

@@ -3,17 +3,26 @@
 */
 
 body {
-  color: #333333;
+  color: #1e1e1e;
   font-family: arial;
   max-width: 650px;
   margin: 0 auto;
   padding: 0 16px;
+
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.main-content {
+  flex-grow: 1;
+
 }
 
 /* *->we have 2 ways to space things... margin and padding || padding -> put space inside box || margin -> put space outside box */
 footer {
-  color: #888888 ;
-  border-top: 2px solid #c6c6c6;
+  color: #727272 ;
+  border-top: 2px solid #949494;
   margin-top: 16px;
   padding: 16px 0;
 }
@@ -29,8 +38,37 @@ h1 {
 }
 
 header a {
-  color: #888888;
   margin-right: 16px;
   text-decoration: none;
-  
+}
+
+a {
+  color: #727272;
+}
+
+#error {
+  font-size: 64px;
+}
+
+#error-message {
+  font-size: 32px;
+}
+
+#form {
+  margin-top: 50px;
+}
+
+input {
+  border: 1px solid #b1b1b1;
+  border-radius: 7px;
+  padding: 8px;
+}
+
+button {
+  cursor: pointer;
+  border: 1px solid #404040;
+  background: #848484;
+  color: white;
+  padding: 8px;
+  border-radius: 7px;
 }

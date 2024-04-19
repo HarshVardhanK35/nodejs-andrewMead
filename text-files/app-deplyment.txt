@@ -1,0 +1,83 @@
+In this section...
+-> You're gonna learn how to deploy application to a production server
+-> we are gonna use Git, GitHub and Heroku tools
+
+GIT >>> put our app under version control and track the changes
+GITHUB >>> back up our code and collaborate with other developers
+HEROKU >>> helps us to deploy Node.JS apps to a production server
+
+Heroku's Command Line Tools >>>
+--------------------------------------------
+-> These gives us access to various commands we can use from the terminal to deploy code and deploy code, if there any changes.
+-> But Heroku needs access to our project code so that can deploy our node apps
+
+so login through terminal using Heroku's commands
+1. Heroku login >>> to login into the account
+
+-------------------------------------- Version Control:
+1. version control allows us to manage the versions of our code for node application
+2. if we add a new feature the code changes and we have to track the changes of our code with version control
+
+Install GIT:
+-------------------------
+>>> visit the exact site to install git
+-> open a new terminal and check its version to check git was actually installed or not
+
+Conclusion:
+1. we put our project under version control to keep track of the changes
+2. then we are gonna send the changes off to the Github and Heroku servers by running commands from the terminal
+
+--------------------------------------------------- HOW?
+1. when we create a project we track changes in it by using some git commands
+2. the files we add into a project are untracked files
+3. when we use a certain commands of git we can track the changes in our project that has two steps in that project
+    1.step >>> we use "git add" command to take one or more files from untracked files state to staged state
+    2.step >>> commit command -> takes all the files in staged state and bundle them up into a single commit and each commit has a unique identifier
+
+
+--------------------------------------------------- Setting up SSH keys
+1. how Heroku and Github services can access the updated code?
+    -> so to Github can be able to host the project by accessing the code and heroku deploy the Node app.
+
+2. How to transfer the code from our machine to 3rd party apps and services
+    -> So we have to use SSH keys to pass the code in a secure way
+
+SSH >>> Secure Shell
+---------------------------------
+-> Gives us a means to securely communicate with another machine
+
+>>> Steps to set up SSH keys
+1. if on windows open git bash terminal or else open on normal command prompt for Mac or Linux users
+2. then go into the directory using cd.
+3. 1st check if there are any existing SSH keys on the machine.
+  >>> "ls" using this command to list out all the contents in a directory
+
+-> Run the command: "ls -a -l ~/.ssh"
+    >>> -a flag: shows up the hidden files
+    >>> -l flag: make the format easier to read
+    >>> last is the path to the directory or folder which we are trying to print its contents.
+
+-> if we have the ssh keys inside .ssh folder then we can use them instead of creating one.
+-> if we have a file called ID_RSA and ID_RSA.pub that means we already have a set of SSH keys
+    -> or else if we do not have files inside .ssh folder... then run come commands to create SSH keys to use
+
+Commands to create SSH keys:
+--------------------------------------------------------
+-> to generate new key:
+1st cmd >>>
+      "ssh-keygen -t rsa -b C" >>> to generate a key pair -t(type of) rsa protocol (rsa does not have abbreviation); -b -> bits for a key... so the common value will be 4096 bits; last is capital "C" -> to provide comments
+
+-> to start new private key if created:
+2nd cmd >>>
+      eval $(ssh-agent -s) -> on windows to start the key
+      eval "$(ssh-agent -s)" -> on mac and linux to start
+... this starts the SSH agent
+
+-> to register the file:
+3rd cmd >>>
+      ssh-add ~/.ssh/id_rsa (windows / linux)
+      ssh-add -k ~/.ssh/id_rsa (mac)
+... this adds the key
+
+Conclusion >>>
+1. we can facilitate an SSH communication using key pair
