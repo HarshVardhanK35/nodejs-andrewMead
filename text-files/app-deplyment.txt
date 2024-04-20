@@ -14,7 +14,7 @@ Heroku's Command Line Tools >>>
 so login through terminal using Heroku's commands
 1. Heroku login >>> to login into the account
 
--------------------------------------- Version Control:
+-------------------------------------- Version Control ---------------------------------------------------
 1. version control allows us to manage the versions of our code for node application
 2. if we add a new feature the code changes and we have to track the changes of our code with version control
 
@@ -27,7 +27,7 @@ Conclusion:
 1. we put our project under version control to keep track of the changes
 2. then we are gonna send the changes off to the Github and Heroku servers by running commands from the terminal
 
---------------------------------------------------- HOW?
+--------------------------------------------------- HOW? ---------------------------------------------------
 1. when we create a project we track changes in it by using some git commands
 2. the files we add into a project are untracked files
 3. when we use a certain commands of git we can track the changes in our project that has two steps in that project
@@ -35,7 +35,7 @@ Conclusion:
     2.step >>> commit command -> takes all the files in staged state and bundle them up into a single commit and each commit has a unique identifier
 
 
---------------------------------------------------- Setting up SSH keys
+--------------------------------------------------- Setting up SSH keys ---------------------------------------------------
 1. how Heroku and Github services can access the updated code?
     -> so to Github can be able to host the project by accessing the code and heroku deploy the Node app.
 
@@ -71,13 +71,34 @@ Commands to create SSH keys:
 2nd cmd >>>
       eval $(ssh-agent -s) -> on windows to start the key
       eval "$(ssh-agent -s)" -> on mac and linux to start
-... this starts the SSH agent
+... this starts the SSH agent by providing a process id. (agent pid "some number")
 
 -> to register the file:
 3rd cmd >>>
-      ssh-add ~/.ssh/id_rsa (windows / linux)
-      ssh-add -k ~/.ssh/id_rsa (mac)
+      ssh-add ~/.ssh/id_rsa         >>>     (windows / linux)
+      ssh-add -k ~/.ssh/id_rsa      >>>     (mac)
 ... this adds the key
 
 Conclusion >>>
 1. we can facilitate an SSH communication using key pair
+
+--------------------------------------------------- Pushing code to Github ---------------------------------------------------
+
+1st... we have to configure SSH inside GitHub >>> to do this >>> visit GitHub -> Settings -> left hand side... SSH and GPG keys
+-> so here we need to give the public key (id_rsa.pub) to github for configuration.
+-> this process creates secure connection.
+
+2nd... GitHub -> Settings -> left hand side... SSH and GPG keys >>> here select new SSH key
+-> here github asks title and contents of the public key inside id_rsa.pub
+-> to get the contents of that file -> run some commands inside a terminal
+
+3rd... commands >>> cat ~/.ssh/id_rsa.pub
+-> cat                  >>>         concatenates the contents of the file
+-> ~/.ssh/id_rsa.pub        >>>         path to the file (where it gets the content)
+
+4th... grab the string it generated
+-> starts from the ssh-rsa and ends with comment we have provided while generating.
+-> paste the key inside GitHub key box and click "add SSH key" to add.
+
+5th...
+-> at last use the command >>> git push -u origin main (main / master according to the default branch on GITHUB)
