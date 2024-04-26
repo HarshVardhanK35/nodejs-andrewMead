@@ -10,6 +10,9 @@ const forecast = require("./utils/forecast.js");
 // express() - function - does not take any arguments - instead we configure our server
 const app = express();
 
+// port value
+const port = process.env.PORT || 3000;
+
 /*
  * ------------------- _STATIC FILES_ -------------------
  * path.join()-> Joins all the paths provided as args and results a normal path
@@ -154,6 +157,6 @@ app.get("*", (req, res) => {
  * port 3000 is not a default port as there will different ports.
  * if there are any changes made in the code... restart the server.
  */
-app.listen(process.env.PORT || 3000, () => {
+app.listen(port, () => {
   console.log(`server up and running on: http://localhost:3000/`);
 });

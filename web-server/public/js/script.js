@@ -13,7 +13,7 @@ cityForm.addEventListener("submit", (e) => {
   messageTwo.textContent = ''
 
 
-  fetch("http://localhost:3000/weather?city=" + location)
+  fetch("/weather?city=" + location)
     .then((res) => {
       return res.json();
     })
