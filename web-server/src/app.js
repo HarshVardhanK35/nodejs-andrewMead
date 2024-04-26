@@ -154,6 +154,6 @@ app.get("*", (req, res) => {
  * port 3000 is not a default port as there will different ports.
  * if there are any changes made in the code... restart the server.
  */
-app.listen(3000, () => {
+app.listen(process.env.PORT || 3000, () => {
   console.log(`server up and running on: http://localhost:3000/`);
 });
