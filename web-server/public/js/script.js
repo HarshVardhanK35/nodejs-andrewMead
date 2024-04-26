@@ -13,16 +13,16 @@ cityForm.addEventListener("submit", (e) => {
   messageTwo.textContent = ''
 
 
-  fetch("/weather?city=" + location)
+  fetch(`/weather?city=${location}`)
     .then((res) => {
       return res.json();
     })
     .then((data) => {
       if (!data.error) {
-        console.log(data)
 
         messageOne.textContent = data.exactLocation;
         messageTwo.textContent = data.forecast;
+        searchBox.value = "";
       }
       else {
         messageOne.textContent = data.error

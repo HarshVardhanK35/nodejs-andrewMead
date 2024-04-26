@@ -22,7 +22,7 @@ const forecast = (lat, long, callback) => {
         callback(`Unable to find location!`, undefined);
       }
       else {
-        callback(undefined, (`It is currently ${(res.body.main.temp - 273.15).toFixed(2)} degrees out and it feels like ${(res.body.main.feels_like - 273.15).toFixed(2)} degrees out`));
+        callback(undefined, (`It is currently ${(res.body.main.temp - 273.15).toFixed(2)} degrees out; It feels like ${(res.body.main.feels_like - 273.15).toFixed(2)} degrees out; Humidity level is ${res.body.main.humidity}%`));
       }
     });
   }

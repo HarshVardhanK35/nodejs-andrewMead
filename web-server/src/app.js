@@ -43,7 +43,6 @@ hbs.registerPartials(partialsPath);
 app.get("/", (req, res) => {
   res.render("index", {
     title: "Weather Forecast",
-    name: "user-1",
     number: "123-4567-890",
   });
 });
@@ -51,8 +50,6 @@ app.get("/", (req, res) => {
 app.get("/about", (req, res) => {
   res.render("about", {
     title: "About",
-    details: "WEATHER insider - New York, NY",
-    name: "Weather Forecast department",
     number: "123-4567-890",
   });
 });
@@ -61,8 +58,6 @@ app.get("/help", (req, res) => {
   res.render("help", {
     title: "Help",
     number: "123-4567-890",
-    address: "WEATHER insider - New York, NY",
-    footer: "Weather Department 2024 ©. All rights reserved."
   });
 });
 

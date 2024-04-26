@@ -14,7 +14,8 @@ const geoCode = (city, callback) => {
         callback(`ge-1: Error connecting services... Please check your internet connection: ${err.code}`, undefined);
       }
       else if (res.statusCode !== 200) {
-        callback(`ge-2: Status: ${res.statusCode}, Response: ${body}`, undefined);
+        console.log(`ge-2: Status: ${res.statusCode}, Response: ${body}`, undefined);
+        callback("error while fetching the data")
       }
       else if (body.features.length === 0) {
         callback("Unable to find location. Try another search!", undefined);
