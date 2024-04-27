@@ -6,7 +6,7 @@ const geoApiKey = process.env.GEOCODING_API_KEY;
 const geoCode = (city, callback) => {
   if (city !== undefined) {
     const geoOptions = {
-      url: `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(city)}.json?access_token=${geoApiKey}`,
+      url: `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(city)}.json?access_token=pk.eyJ1IjoiaGFyc2hhMjc2IiwiYSI6ImNsdWUwendhMzFueDUya3F1azF2cGRzMnMifQ.-zIpd-Jw-hkTxRsO1OvbJQ`,
       json: true, // json --- true (automatically parses json responses)
     };
     request(geoOptions, (err, res, body) => {
@@ -14,8 +14,8 @@ const geoCode = (city, callback) => {
         callback(`ge-1: Error connecting services... Please check your internet connection: ${err.code}`, undefined);
       }
       else if (res.statusCode !== 200) {
-        console.log(`ge-2: Status: ${res.statusCode}, Response: ${body}`, undefined);
-        callback("error while fetching the data")
+        console.log(body)
+        callback(`ge-2: Status: ${res.statusCode}, Response: ${body}`, undefined);
       }
       else if (body.features.length === 0) {
         callback("Unable to find location. Try another search!", undefined);

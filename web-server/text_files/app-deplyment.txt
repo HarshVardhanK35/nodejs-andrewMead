@@ -15,7 +15,7 @@ so login through terminal using Heroku's commands
 1. Heroku login >>> to login into the account
 
 ______________________________________________________________________________________________________________________________
--------------------------------------- Version Control ---------------------------------------------------
+-------------------------------------- Version Control -----------------------------------------------------------------------
 ______________________________________________________________________________________________________________________________
 
 1. version control allows us to manage the versions of our code for node application
@@ -37,7 +37,7 @@ Conclusion:
     1.step >>> we use "git add" command to take one or more files from untracked files state to staged state
     2.step >>> commit command -> takes all the files in staged state and bundle them up into a single commit and each commit has a unique identifier
 ______________________________________________________________________________________________________________________________
---------------------------------------------------- Setting up SSH keys ---------------------------------------------------
+--------------------------------------------------- Setting up SSH keys ------------------------------------------------------
 ______________________________________________________________________________________________________________________________
 
 1. how Heroku and Github services can access the updated code?
@@ -123,12 +123,63 @@ steps to be followed:
 -> "heroku keys:add" run this command
 -> this searches for any public keys from the SSH directory --- and asks to upload it to heroku --- asks to enter "y" for yes
 
-Note: now we can send our code to heroku securely.
+Note:
+-----------
+now we can send our code to heroku securely.
+
+1. add a script in package.json >>> "start": "node src/app.js" >>> node app folder path
+2. change the PORT value to "process.env.PORT || < user-defined port (3000 / 5500 / 8800) >"
+3. change the code where we fetch data from the localhost server. (take help from: ChatGPT)
 
 2nd >>> process - to create application
--> run "heroku create < application-name >" from the path of the project directory --- specify a name for application that must be unique.
-ex: heroku create pravar-weather-application
--> it provides us two urls...
-        1. URL: location where we can view application.
-        2. Git repo URL where we can push the code that we wanted to deploy.
--> 
+----------------
+-> visit heroku webpage >>> click on new button >>> create new app
+-> choose the app name >>> click on "create app" button
+-> follow the commands to create an app:
+    1. heroku login
+    2. cd my-project/ -> (project directory)
+    3. git init
+    4. heroku git:remote -a "app-name"
+    5. git add .
+    6. git commit -am "make it better"
+    7. git push heroku master
+
+3rd >>> to handle errors
+---------------
+-> heroku logs --tail to log the errors
+
+conclusion:
+----------------------
+-> take the help of ChatGPT to solve the errors
+______________________________________________________________________________________________________________________________
+--------------------------------------------------- Avoiding Global Modules --------------------------------------------------
+______________________________________________________________________________________________________________________________
+
+1. setup a 2nd script in package.json (Development script)
+-----------------------
+-> if we wanna start the app every time we have to use the command " nodemon src/app.js -e js,hbs" (-e for extensions)
+-> add: -----------------                       "dev": "nodemon src/app.js -e js,hbs"
+-> now run the script: -----------------        " npm run dev "
+-> with this it would be easier to start the dev server without typing the whole script again
+
+2. Global Modules:
+intro ----------------------------
+-> Nodemon is a Global module
+-> global modules are not the local-dev dependencies.
+    -> when someone wants to add a functionality to our project they can install the modules which are available inside package.json
+    -> but they can not install the global modules.
+
+Solve this ----------------------------
+-> uninstall any global module and install it as a local dev dependency.
+-> to uninstall a global module, we use command -> " npm uninstall -g nodemon "
+-> to install a module as a local dev dependency -> " npm install nodemon --save-dev " (--save-dev >>> installs a module as a dev dependency)
+
+why as a dev dependency?
+-> we are installing a module for local machine but not on production environment.
+-> as heroku uses "start" script but not "dev" script
+
+conclusion:
+------------------
+-> while using nodemon as a dev dependency execute the app using script but not the whole nodemon command
+-> DO NOT USE: " nodemon src/app -e js,hbs "
+-> USE: " npm run dev "
