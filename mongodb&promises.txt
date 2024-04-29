@@ -1,0 +1,59 @@
+/MongoDB and Promises/
+Intro...
+Here we are going to learn only the basics.
+1.  In this section, we learn how to connect nodejs app to a database to store user data.
+2.  We are going to start an app which is Task Manger application.
+3.  We are going to learn everything which is needed for development of an app.
+
+MongoDB and NoSQL databases...
+Intro
+1.  We are going to learn about the database we will be using to store data (MongoDB).
+2.  For this, we are going to have an authentication, CRUD operations and lot more.
+
+MongoDB
+1.  Visit “mongodb.com” which is an open-source database we can install it on all types of machines.
+2.  We will use mongodb native driver to connect to database from nodejs to make CRUD operations with the data.
+3.  This falls under a category of NoSQL database (NoSQL stands for Not Only Structured Query Language).
+
+comparison of SQL and NoSQL databases...
+SQl
+1.  data is stored in the tabular format.
+2.  individual items storage: row or a record
+3.  there are columns with different user properties (name, age, id, email)
+
+NoSQL
+1.  data is stored in the collection format
+2.  individual items storage: document (looks like JSON --- JSON representation)
+3.  there are fields (name, id, age, email)
+
+conclusion:
+1.  collection is a list of entries these entries are referred to as documents and these documents have many fields as we need.
+
+ex:
+collection inside mongodb
+[
+  {
+    "_id": "u124asfw13g"
+    "name": "u1",
+    "age": 32,
+    "email": "u1@user.com"
+  },
+  {...}
+]
+
+Installation of mongodb on windows...
+
+Installation of database GUI viewer... User interface to manage mongodb database and data it contains
+
+Connecting and Inserting Documents...
+1. create "task-manager" project directory -> initialize npm with "npm init -y" -> install mongodb with "npm i mongodb"
+2. we have to perform CRUD operations (Create, Read, Update & Delete) to manage our data.
+3. remaining process is inside "mongodb.js" file.
+
+-> learned how to insert data into a database using nodejs
+-> while inserting data a unique identifier (_id) was generated automatically
+
+explanation:
+-> installed MongoDB NPM library >>> native driver created by MongoDB company >>> allowing us to connect to mongodb database from nodeJS.
+-> connect method used to connect to specific server
+-> used db() method on the client to get connection to specicfic database
