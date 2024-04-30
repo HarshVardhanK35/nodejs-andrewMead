@@ -1,46 +1,45 @@
 // ------------------------------------------ To perform CRUD operations
 
-// import mongodb
+/*
+  * short cut --- const { MongoClient, ObjectID } = require("mongodb");
+*/
 const mongodb = require('mongodb');
+const MongoClient = mongodb.MongoClient
+const ObjectID = mongodb.ObjectId
 
 // Require 'dotenv'
-require('dotenv').config();
+require("dotenv").config();
 
-// MongoClient -> gives function to connect to the database... so we can perform CRUD operations
-const MongoClient = mongodb.MongoClient;
-
-// define connectionURL of the database we are trying to connect to...
+// define "connectionURL" of the database we are trying to connect to...
 const uri = process.env.MONGODB_URI;
 
 // set database name
-const databaseName = 'task-manger';
+const databaseName = "task-manager";
+
+// ObjectID constructor
+const id = new ObjectID("66312a9b4ac98d5e1d6165b5")
 
 // connect to mongodb atlas
 MongoClient.connect(uri)
-.then((client) => {
+  .then((client) => {
+    console.log("connected to database!");
 
-  console.log("connected to database!")
+    // accessing database through client.db()
+    const db = client.db(databaseName);
 
-  // accessing "task-manager" database through client.db()
-  const db = client.db(databaseName);
-
-  // variable that represents a collection within a database ('task-manger')
-  const collection = db.collection('users')
-
-  // data to insert
-  const data = { name: "John", age: 23 };
-
-  // insert a single document into the MongoDB collection
-  collection.insertOne(data)
-  .then((result) => {
-    console.log('Data inserted successfully', result)
-    client.close()
+    db.collection('users').findOne({ _id: id })
+    .then((userData) => {
+      if(userData !== null) {
+        console.log('Data found...', userData)
+      }
+      else{
+        console.log(`Once check the search query... found: ${userData}`)
+      }
+    })
+    .catch((error) => {
+      console.log('Unable to find data', error)
+    })
   })
   .catch((error) => {
-    console.error('error while inserting!', error);
-    client.close()
+    console.log("error in connecting!", error);
   });
-})
-.catch((error) => {
-  console.log("error in connecting!", error)
-})

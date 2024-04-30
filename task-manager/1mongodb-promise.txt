@@ -1,0 +1,165 @@
+/MongoDB and Promises/
+Intro...
+Here we are going to learn only the basics.
+1.  In this section, we learn how to connect nodejs app to a database to store user data.
+2.  We are going to start an app which is Task Manger application.
+3.  We are going to learn everything which is needed for development of an app.
+
+* MongoDB and NoSQL databases...
+Intro
+1.  We are going to learn about the database we will be using to store data (MongoDB).
+2.  For this, we are going to have an authentication, CRUD operations and lot more.
+
+MongoDB
+1.  Visit “mongodb.com” which is an open-source database we can install it on all types of machines.
+2.  We will use mongodb native driver to connect to database from nodejs to make CRUD operations with the data.
+3.  This falls under a category of NoSQL database (NoSQL stands for Not Only Structured Query Language).
+
+* comparison of SQL and NoSQL databases...
+SQl
+1.  data is stored in the tabular format.
+2.  individual items storage: row or a record
+3.  there are columns with different user properties (name, age, id, email)
+
+NoSQL
+1.  data is stored in the collection format
+2.  individual items storage: document (looks like JSON --- JSON representation)
+3.  there are fields (name, id, age, email)
+
+conclusion:
+1.  collection is a list of entries these entries are referred to as documents and these documents have many fields as we need.
+
+ex:
+collection inside mongodb
+[
+  {
+    "_id": "u124asfw13g"
+    "name": "u1",
+    "age": 32,
+    "email": "u1@user.com"
+  },
+  {...}
+]
+
+* Installation of mongodb on windows...
+  skipped
+* Installation of database GUI viewer... User interface to manage mongodb database and data it contains
+  skipped
+
+* Connecting and Inserting Documents...
+1.  create "task-manager" project directory   -> initialize npm with "npm init -y"  -> install mongodb with "npm i mongodb"
+2.  we have to perform CRUD operations (Create, Read, Update & Delete) to manage our data.
+3.  remaining process is inside "mongodb.js" file.
+
+->  learned how to insert data into a database using nodejs
+->  while inserting data a unique identifier (_id) was generated automatically
+
+explanation:
+->  installed MongoDB NPM library >>> native driver created by MongoDB company >>> allowing us to connect to mongodb database from nodeJS.
+->  connect method used to connect to specific server
+->  used db() method on the client to get connection to specific database
+
+* Inserting document...
+1.  insertOne used to insert single document into a collection
+2.  insertOne() is an asynchronous.
+3.  insertOne takes two arguments.
+insert data:
+->  1st argument >>> data
+  ->  collection.insertOne({ name: "John" })
+->  in above example we did not use callbacks but we can to handle errors
+
+handling errors:
+->  2nd argument >>> to handle errors
+  ->  collection.insertOne({ name: "John" }, (err, res) => {})
+->  callback takes two arguments error and result
+  ->  result.. if things went well
+    ->  result... contains information that is data we sent and as well as the unique-ID that assigned to the data we sent.
+  ->  as per API documentation... on result we have properties like "ops", "insertedId".
+    ->  ops... an array of documents that were inserted.
+    ->  insertedId... returns an ID that was assigned to the document that was inserted.
+->  handle the error and result using if block
+
+example:
+1.  on insertOne we can also use if-else to handle errors.
+
+2.  on insertOne we used .then and .catch to handle errors
+  collection.insertOne(data)
+  .then((result) => {
+    console.log('Data inserted successfully', result.insertedId)
+    client.close()
+  })
+  .catch((error) => {
+    console.error('error while inserting!', error);
+    client.close()
+  });
+
+* Inserting documents...
+1.  insertMany is used to insert more than 1 document a time.
+2.  this takes two arguments
+
+->  1st arg >>> an array of documents to insert
+->  2nd arg >>> callback function ()=>{}   -> to handle error and result.
+
+* The ObjectId...
+1.  what is the important role of Ids assigned to documents that were created.
+2.  the ids inside mongodb are GUIDs(Globally Unique Identifiers) designed by an algorithm.
+3.  like sql there will not be any Id collision inside mongodb database servers.
+4.  the server is not generating the Ids but the mongodb library
+
+->  generating new GUIDs on our own needs...
+1.  ObjectId from mongodb
+2.  constructor function... const id = new ObjectId();
+3.  print id to the console
+
+Note:
+GUID is a 12-byte ObjectId value consists...
+  4-byte -> represents seconds >>> timestamp when an ObjectId was created
+  5-byte -> random value
+  3-byte -> counter, starting with a random value
+
+4.  timestamp... clg(id.getTimestamp()) does not take any arguments
+->  gets the exact time when the GUID was created
+
+object destructuring:
+method-1 >>>
+  const mongodb = require('mongodb')
+  const MongoClient = mongodb.MongoClient
+method-2 >>>
+  const { MongoClient } = require('mongodb')
+
+conclusion:
+->  we learned how to C - create in CRUD
+  // variable that represents a collection within a database
+    db.collection("tasks")
+      .insertMany([
+        {
+          name: "user-1",
+          task: "get milk",
+        },
+        {
+          name: "user-2",
+          task: "water plants",
+        },
+      ])
+      .then((result) => {
+        console.log(result.insertedCount);
+      })
+      .catch((error) => {
+        console.log("Unable to insert documents!", error);
+      });
+
+* Querying Documents:
+1.  "R" read a document by it's id or any other field
+2.  we can also fetch multiple documents using a specific subset (like when age===27)
+3.  we use two methods that are
+    ->  "find" to fetch multiple documents from a database (uses specific subset to group things)
+    ->  "findOne" to fetch single document
+4.  "findOne"... takes two arguments
+  ->  object:     to specify search criteria... search using a name or id or age or something that an object holds as a property key
+  ->  callback:   gets called when operation is completed... we either gets an error or data we search
+5.  searching for a doc and not finding it is not an error we get "null".
+6.  it will always returns 1st document if there are multiple documents with same search criteria.
+7.  if we want to search for an unique document then use it's GUID
+  ->  1st arg - findOne:  { _id: "66312a9b4ac98d5e1d6165b5" } this do not give any results.
+  ->  1st arg - findOne:  { _id: new ObjectId("66312a9b4ac98d5e1d6165b5") } we get the expected results.
+8.  
