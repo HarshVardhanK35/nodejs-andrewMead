@@ -25,13 +25,32 @@
 // 3. After 2 seconds are up, call the callback function with the sum
 // 4. Test your work!
 
-const cube = (a, b, cb) => {
-  setTimeout(() => {
-    const square = a * b;
-    cb(square)
+// const cube = (a, b, cb) => {
+//   setTimeout(() => {
+//     const square = a * b;
+//     cb(square)
+//   }, 2000)
+// }
+// cube(2, 2, (square) => {
+//   const res = square * 2;
+//   console.log(res)
+// })
+
+
+
+
+const workOnCallback = (callback) => {
+  setTimeout(()=>{
+    callback("error!", undefined)
+    callback(undefined, [1, 2, 3])
   }, 2000)
 }
-cube(2, 2, (square) => {
-  const res = square * 2;
-  console.log(res)
-})
+
+function callback(error, result){
+  if(error) {
+    console.log(error)
+  }
+  console.log(result)
+}
+
+workOnCallback(callback)

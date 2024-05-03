@@ -148,7 +148,8 @@ conclusion:
         console.log("Unable to insert documents!", error);
       });
 
-* Querying Documents:
+* Querying Documents - findOne and find...
+findOne:
 1.  "R" read a document by it's id or any other field
 2.  we can also fetch multiple documents using a specific subset (like when age===27)
 3.  we use two methods that are
@@ -162,4 +163,114 @@ conclusion:
 7.  if we want to search for an unique document then use it's GUID
   ->  1st arg - findOne:  { _id: "66312a9b4ac98d5e1d6165b5" } this do not give any results.
   ->  1st arg - findOne:  { _id: new ObjectId("66312a9b4ac98d5e1d6165b5") } we get the expected results.
-8.  
+
+find:
+1.  to find for multiple documents with the specified criteria as a Query object
+2.  "find" does not take any callback as the second argument
+3.  as the 1st argument we have to provide age or taskStatus if it is userData but not the ID (as we have to get bunch of results we should not pass ID as it is Unique we get a single value)
+
+->  we get "cursor" as the return value from the find
+  ->  cursor has methods we can use to manipulate the data popularly we use "toArray()" which gets back an array of documents
+    ->  toArray takes a callback function which either return an error or an array of results
+  ->  "count" which returns the count or number of elements in that result array
+
+* Promises...
+const workOnPromise = new Promise((resolve, reject) => {
+  setTimeout(()=>{
+    // reject("something went wrong!")
+    // resolve(["some", "result", [1, 2, 3] ])
+  }, 2000)
+})
+
+workOnPromise
+.then((result) => {
+  console.log(result)
+})
+.catch((error) => {
+  console.log(error)
+})
+/*
+ * we do not create promises like this but they are created by the libraries we use in development
+ *
+ * Note:
+ * In promises, we can call either resolve or reject functions (we can't call both or can't call one function twice)
+ * Once one of them is called the value or state of promise can not change
+ * But with callback pattern we can call a callback twice that can be an error or a resolved result
+ *
+ *                            -> fulfilled (resolved)
+ *                          /
+ * promise --- pending --->
+ *                          \
+ *                             -> rejected
+ *
+ * our promise is pending for two seconds until either resolve or reject is executed
+ *  -> if resolve is called promise is fulfilled.
+ *  -> if reject is called promise is rejected.
+*/
+
+* Updating documents...
+we have
+  updateMany -> (to update many docs at a time)
+  updateOne -> (to update one doc)
+
+1.  updateOne...
+->  1st object is for filter by id or by any of its properties
+->  update the things what we wanted to do
+
+steps to be followed:
+->  1-arg:  an object that takes in target the object with its Id
+->  2-arg:  also an object... we do not update the field-values directly instead... we use update operators: "$set"(commonly used)
+
+$set allows us to set new value to already existing fields
+{
+  $set{
+    name: "Mike"
+  }
+}
+
+->  there are some other update operators in mongodb but most commonly used are: $set and $inc(to increment a value of the field)
+{
+  $inc{
+    age: 1 for increment or -1 for decrement
+  }
+}
+->  this whole returns a promise and to consume a promise
+  ->  we use .then() to get results if it is resolved and .catch() to handle the errors
+
+ex:
+db.collection('users').updateOne({_id: id}, {$set: {name: "user-3"}})
+  .then((data) => {
+    console.log(data)
+  })
+  .catch((error) => {
+    console.log(error)
+  })
+
+2.  updateMany...
+->  1-arg: takes an object to filter
+->  2-arg: takes another object with "$set" operator to update the values in that filtered field
+->  returns a promise and use .then() .catch() to handle the result and error respectively.
+ex:
+  db.collection('users').updateMany({completed: false}, {$set: {completed: true}})
+    .then((res) => {
+      console.log(res)
+    })
+    .catch((err) => {
+      console.log(err)
+    })
+
+* Deleting documents...
+->  we have two methods in mongodb that are deleteOne and deleteMany
+->  same as updateOne and updateMany the arguments are same for Deleting methods
+
+deleteMany:
+1-arg:  filter the field that need to be deleted
+->  this returns a promise and it need to be consumed
+
+deleteOne:
+same code as deleteMany
+
+conclusion:
+->  Use deleteOne() when you want to delete a single document that matches certain criteria, and it's sufficient to delete only one document.
+->  Use deleteMany() when you want to delete multiple documents that match certain criteria, and you want to delete all of them.
+
