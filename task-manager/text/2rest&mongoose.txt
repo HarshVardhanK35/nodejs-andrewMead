@@ -1,0 +1,62 @@
+//Rest APIs and Mongoose//
+Intro...
+1. Here we can create our express-based REST API.
+2. we are going to explore Mongoose when working with Node and MongoDB.
+3. Mongoose which is easy for modeling data
+4. we are going to set various data fields and data types for data validation.
+
+(visit "mongoosejs.com" for more details...)
+
+* setting up Mongoose...
+Intro...
+-> for docs which fields are required and which are optional and what types of data that I expect.
+("task-completion" field need to be boolean not to be a string) --- this is "validation"
+-> with mongoose we can add "authentication" to an app.
+-> with mongoose we can create "model"
+-> mongoose uses the mongodb behind the scenes.
+
+Model.
+1. this allows us to model something in the real world so that we can store in the database.
+(if we are creating an "IKEA" website we have to  model various furniture with their names, price, dimensions)
+2. we use these models to describe the data inside DB.
+
+Mongoose
+1. this provides straight, schema-based solution to model app data
+2. includes built-in type-casting, Query-building, business logic hooks and more
+
+-> Mongoose falls under broader category of tools known as ODMs (ODM - Object Document Mapper)
+(that is with mongoose... objects in NodeJS app over to docs inside mongodb database)
+
+1. Install... "npm i mongoose".
+2. directory tree... task-manager(D) -> src(D) -> db(D) -> mongoose.js(F).
+3. For more details about the code follow the above folder structure to review the code.
+
+// to connect to the DB
+......................... mongoose.connect()
+-> takes in connectionURL and options object {useNewUrlParser: true, useCreateIndex: true}
+-> with options setting to true... when mongoose works with mongodb indexes are created allows us to access data we need to access
+-> to create a model we use mongoose.model()
+
+ex:
+
+// connect to the database --- takes connection URL, options
+mongoose.connect("connectionURL")
+  .then(() => {console.log("connected to database")})
+  .catch((err) => {console.log(err)});
+
+// create a model using mongoose.model() which takes 2 args... string-name for model and schema definition for all of the fields
+const User = mongoose.model('User', {
+  name: { type: String },
+  age: { type: Number }
+})
+
+// create instances to add documents to DB
+const user1 = new User({
+  name: "user-1",
+  age: 23
+})
+
+// save to the DB use methods on the instance that we have created
+user1.save()
+.then(() => { console.log(user1) })
+.catch((err) => { console.log(err) })
