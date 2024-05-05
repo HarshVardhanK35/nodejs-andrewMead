@@ -60,7 +60,7 @@ user1.save()
 .then(() => { console.log(user1) })
 .catch((err) => { console.log(err) })
 
-* Data visualization and sanitization: P-1
+* Data visualization and sanitization: P-1 & 2
 
 Validation:
 -> rules for data.
@@ -94,3 +94,93 @@ trim: true or minLength or maxLength: Number
 -> required, default, validate etc. as properties
 -> these takes function string boolean as values
 
+* Structuring a REST API
+
+-> in this we will learn how to structure HTTP endpoints for task-manager application API.
+
+Intro...
+1. REST ->(Representational State Transfer) and API ->(Application Programming Interface)
+
+API:
+-> An API is a set of rules that allows different software applications to communicate with each other.
+-> It defines methods and data formats that applications can use to request and exchange information or perform actions.
+-> set of tools that allow to build software apps.
+
+REST API:
+-> A REST API is a way for software applications to communicate with each other over the internet.
+    It follows the principles of REST, which include using standard HTTP methods like GET, POST, PUT, DELETE, etc., to perform CRUD operations on resources.
+    REST APIs typically use JSON or XML as data formats for transmitting information between the client and server.
+-> (resource: user or task) & (operations: CRUD operations on resources)
+-> simply, by using REST API... we can fetch and manipulate data
+
+1. REST API --- a server that is stateless.
+2. state been transferred from server to client.
+3. requests are being made by HTTP requests.
+
+GET request:
+          Need to show data                                         found data in database
+                    \            GET(req)/ tasks/ _id:a7ea              /
+                    client    -------------------------------->    server
+                              <--------------------------------
+                                      200- JSON res
+
+POST request:
+              I am Jade and
+              I need to create a todo                                     Identity confirmed and Todo created
+                    \                       POST(req)/ tasks/ JSON req                     /
+                    client              -------------------------------->              server
+                                        <--------------------------------
+                                                201- JSON res
+--- GET
+1. client makes an HTTP req to a specific URL to the server here above we are using GET- HTTP method to make req to id: a7ea
+2. server finds data in DB and sends the HTTP response with 200 as status code -> (GREEN) in JSON format.
+3. so client renders the data.
+--- POST
+1. we see a 201_Status_Code... which says that a resource was created.
+
+REST API structure - Predefined operations:
+--------------------------------------------- resource --- METHODS /url-endpoints
+1. CREATE --- [POST /tasks]
+          multiple resources --- [GET /tasks]
+        /
+2. READ
+        \ single / individual resource --- [GET /tasks /:id] (":id" a placeholder replaced with some value)
+3. UPDATE --- [PATCH /tasks /:id]
+4. DELETE --- [DELETE /tasks /:id]
+
+WHAT?
+what exactly is sent between client and server when we make request?
+-> it is text.
+
+STRUCTURE OF AN HTTP REQ:
+
+          POST /tasks HTTP/1.1
+          Accept: application/json
+          Connection: Keep-Alive
+          Authorization: "something"
+
+        {"description": "water plants"}
+      /                            \
+client                              server
+      \                              /
+          HTTP/1.1 201 created
+          Date: date and time when it is created
+          Server: Express
+          Content-Type: application/json
+
+  {"_id": shgjkswhgjhdgjkh, "description": "water plants", "completed": false}
+
+REQ -> Client to Server:
+1. req-line: consists HTTP method used, path and HTTP protocol.
+2. req-headers: these are key-value pairs which attaches meta info to the request.
+  2.1 Accept: we are expecting JSON data.
+  2.2 Connection: we make other connections shortly so keep this connection open.
+  2.3 Authorization: to set up authentication.
+
+RES -> Server to Client:
+1. status line: HTTP protocol and 201 status code -> that means created
+2. response headers:
+  2.1 Date: time and date when a data created.
+  2.2 Server would be Express.
+  2.3 Content-Type: meta-data about which type of data has been created.
+  2.4 {data}: response body... with id attached to the data data that has been created.
