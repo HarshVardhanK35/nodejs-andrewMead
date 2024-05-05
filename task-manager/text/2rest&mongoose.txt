@@ -38,7 +38,6 @@ Mongoose
 -> to create a model we use mongoose.model()
 
 ex:
-
 // connect to the database --- takes connection URL, options
 mongoose.connect("connectionURL")
   .then(() => {console.log("connected to database")})
@@ -60,3 +59,38 @@ const user1 = new User({
 user1.save()
 .then(() => { console.log(user1) })
 .catch((err) => { console.log(err) })
+
+* Data visualization and sanitization: P-1
+
+Validation:
+-> rules for data.
+-> validating a document by setting --- required: true (for not an optional field)
+
+Sanitization:
+-> altering the data before saving it.
+-> sanitizing a field value by removing extra spaces around
+
+1. when a required field is not provided we get an error and parsing that will help user to know where the error actually happened
+2. if that field is not set to required then it is an optional
+
+-> so to validate other fields like (age, phone number and others) we can use our own validate() function
+-> to validate age...
+  validate(value){
+    if (value < 0) {
+      throw new Error("Age must be a positive number!")
+    }
+  }
+-> to validate other fields like (numbers, social security number etc) we have an NPM library  "validator"
+-> to install: "npm i validator"
+-> and import into application using "require()" function
+
+Sanitization:
+
+1. trim, lowercase, uppercase, match(regexp), min and max lengths.
+-> these takes the values as boolean, regexp and number etc.
+trim: true or minLength or maxLength: Number
+
+2. schema types:
+-> required, default, validate etc. as properties
+-> these takes function string boolean as values
+
