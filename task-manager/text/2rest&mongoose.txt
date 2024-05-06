@@ -7,6 +7,7 @@ Intro...
 
 (visit "mongoosejs.com" for more details...)
 
+
 * setting up Mongoose...
 Intro...
 -> for docs which fields are required and which are optional and what types of data that I expect.
@@ -60,6 +61,7 @@ user1.save()
 .then(() => { console.log(user1) })
 .catch((err) => { console.log(err) })
 
+
 * Data visualization and sanitization: P-1 & 2
 
 Validation:
@@ -94,6 +96,7 @@ trim: true or minLength or maxLength: Number
 -> required, default, validate etc. as properties
 -> these takes function string boolean as values
 
+
 * Structuring a REST API
 
 -> in this we will learn how to structure HTTP endpoints for task-manager application API.
@@ -118,19 +121,19 @@ REST API:
 3. requests are being made by HTTP requests.
 
 GET request:
-          Need to show data                                         found data in database
-                    \            GET(req)/ tasks/ _id:a7ea              /
-                    client    -------------------------------->    server
-                              <--------------------------------
-                                      200- JSON res
+        Need to show data           GET(req)/ tasks/ _id:a7ea              found data in database
+                    \           -------------------------------->               /
+                    client                                                  server
+                                <--------------------------------
+                                       200- JSON res
 
 POST request:
-              I am Jade and
-              I need to create a todo                                     Identity confirmed and Todo created
-                    \                       POST(req)/ tasks/ JSON req                     /
-                    client              -------------------------------->              server
-                                        <--------------------------------
-                                                201- JSON res
+          I am Jade and
+          I need to create a todo      POST(req)/ tasks/ JSON req         Identity confirmed and Todo created
+                    \               -------------------------------->       /
+                    client                                                server
+                                    <--------------------------------
+                                              201- JSON res
 --- GET
 1. client makes an HTTP req to a specific URL to the server here above we are using GET- HTTP method to make req to id: a7ea
 2. server finds data in DB and sends the HTTP response with 200 as status code -> (GREEN) in JSON format.
@@ -162,7 +165,7 @@ STRUCTURE OF AN HTTP REQ:
         {"description": "water plants"}
       /                            \
 client                              server
-      \                              /
+      \                            /
           HTTP/1.1 201 created
           Date: date and time when it is created
           Server: Express
@@ -184,3 +187,58 @@ RES -> Server to Client:
   2.2 Server would be Express.
   2.3 Content-Type: meta-data about which type of data has been created.
   2.4 {data}: response body... with id attached to the data data that has been created.
+
+
+* Installing Postman
+
+POSTMAN:
+-> platform for API development that simplifies the process of designing, testing, and documenting APIs.
+-> an interface for sending HTTP requests to APIs
+-> Postman supports various request types (GET, POST, PUT, DELETE, etc.), authentication methods
+          and response validations, making it a valuable tool for developers working with APIs.
+
+Intro:
+-> we have made HTTP requests using browser
+-> now we have a tool to fire all HTTP requests and allows us to test and verify REST API
+
+--- The tool is "POSTMAN" ---
+-> visit "getpostman.com" to install this tool.
+
+-> when we use this tool --- we can test the endpoints without creating a client.
+
+
+* Resource creation- Endpoints: Part-1
+
+-> install nodemon as dev dependency and express as main dependency.
+-> create index.js in src directory which will be the starting point of application.
+-> for more details check out the code inside index.js
+
+-> on postman, if we want to create user we make a post request
+--- app.post('path of URL', cb-fun() => {})
+-> so to create user we use postman by setting the raw data on body tab with JSON format
+-> JSON data that we POST will be
+    {
+      "name": "john",
+      "email": "john123@email.com",
+      "password": "JoHn124@"
+    }
+
+-> to access this in our application we have to use 2-step process:
+  1. configure Express --- to automatically parse the incoming JSON for us.
+  2. so set up a call to app.use() function.
+-> use: "app.use(express.json())"
+  -> this above line parses incoming JSON to an object.
+  -> so to access that object in request handlers... we use "req.body" log this to console and send POST-request from postman.
+
+-> so to create an user using this object within the main index.js file we have to
+  1. create "models" directory inside "src" and create "user.js" file.
+  2. cut, copy and paste the User model code from mongoose.js to user.js file.
+  3. so now we can import and export the code from it.
+
+-> so import mongoose connection from db/mongoose.js into index.js and User model from model/user.js into index.js
+  -> after importing user model we can create a new instance using "new" keyword
+      const user = new User()
+  -> User() this takes an object with name, email and password as properties... as we can access it using req.body we can pass them.
+  -> after creating User user save() to save the user to database and this returns a promise so use .then() and .catch() to consume that promise.
+
+-> 
