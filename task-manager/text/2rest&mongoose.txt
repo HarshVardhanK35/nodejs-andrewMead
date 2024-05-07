@@ -315,6 +315,17 @@ Model.findOneAndUpdate()
 Multiple users
 -> to fetch all users we use "find()" with an arg which is an empty object on User model
   -> User.find({}) --- this returns a promise and which needs to be consumed with .then() and .catch()
+ex:
+// fetching multiple users --- use find method
+app.get('/users', (req, res) => {
+  User.find({})
+  .then((users) => {
+    res.send(users) // array of users
+  })
+  .catch((err) => {
+    res.status(500).send(err)
+  })
+})
 
 Single user
 -> to fetch single user with unique Id
@@ -324,4 +335,34 @@ Single user
 
   -> to this express gives us route parameters so in callback function (req, res) req- request gives us access to params object
     -> "req.params" gives us all route parameters
-    
+ex:
+// fetching single user --- using unique Id
+app.get('/users/:id', (req, res) => {
+  const _id = req.params.id;
+  User.findById(_id)
+  .then((user) => {
+    res.send(user)
+  })
+  .catch((err) => {
+    res.status(500).send(err)
+  })
+})
+
+
+* Advance Concepts
+
+* Promise Chaining
+------------------------------------------------------
+-> till now we did single asynchronous operation.
+-> but what if we want to do multiple asynchronous operations.
+
+conclusion:
+-> to know more on this visit "playground/ 7-promises.js" and "task-manager/ promise-chaining"
+-> lastly, if we get a deprecation warning set "useFindAndModify" property to "false" in options of mongoose.connect(url, options)
+-> because mongoose uses mongodb native driver behind the scenes (we see this only when we use olden version of mongoose)
+-> it will look like this...
+  mongoose.connect(connectionURL, {
+    useNewUrlParser: true,
+    useCreateIndex: true,
+    useFindAndModify: false
+  })

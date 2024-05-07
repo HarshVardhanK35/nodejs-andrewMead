@@ -1,16 +1,16 @@
-const workOnPromise = new Promise((resolve, reject) => {
-  setTimeout(()=>{
-    reject("something went wrong!")
-  }, 2000)
-})
+// const workOnPromise = new Promise((resolve, reject) => {
+//   setTimeout(()=>{
+//     reject("something went wrong!")
+//   }, 2000)
+// })
 
-workOnPromise
-.then((result) => {
-  console.log(result)
-})
-.catch((error) => {
-  console.log(error)
-})
+// workOnPromise
+// .then((result) => {
+//   console.log(result)
+// })
+// .catch((error) => {
+//   console.log(error)
+// })
 
 
 /*
@@ -32,3 +32,60 @@ workOnPromise
  *  -> if reject is called promise is rejected.
 */
 
+// Multiple Asynchronous Operations
+// Promise Chaining
+
+// below is single synchronous operation
+const add = (a, b) => {
+  return new Promise((res, rej) => {
+    setTimeout(() => {
+      res(a + b)
+    }, 2000)
+  })
+}
+add(2, 3)
+.then((sum) => {
+  console.log(sum)
+})
+.catch((err) => {
+  console.log(err)
+})
+
+// so we can nest another promise inside one
+add(2, 3)
+.then((sum) => {
+  console.log(sum)
+
+  add(sum, 5)           // another promise nested here
+  .then((sum1) => {
+    console.log(sum1)
+  })
+  .catch((err) => {
+    console.log(err)
+  })
+})
+.catch((err) => {
+  console.log(err)
+})
+
+/*
+ * the above example is same as callback hell.
+ * the more promises we nest in the more complex the code gets.
+ * we have same code that has repeated again and again.
+ * so we have promise chaining to prevent this
+*/
+// new syntax:
+add(2, 3)                 // returns 1st promise
+.then((sum1)=>{
+  console.log(sum1)
+  return add(sum1, 4)     // returns 2nd promise
+})
+.then((sum2) => {
+  console.log(sum2)
+})
+.catch((err) => {
+  console.log(err)
+})
+
+
+//NOTE: this is not the real-world use case so created promise-chaining inside task-manager to play with mongoose
