@@ -16,7 +16,7 @@ const uri = process.env.MONGODB_URI;
 const databaseName = "task-manager";
 
 // ObjectID constructor
-const id = new ObjectID("66312a9b4ac98d5e1d6165b6")
+const id = new ObjectID("663986424fb304f653a3ff07")
 
 // connect to mongodb atlas
 MongoClient.connect(uri)
@@ -26,7 +26,7 @@ MongoClient.connect(uri)
     // accessing database through client.db()
     const db = client.db(databaseName);
 
-    db.collection('users').deleteMany({completed: false, name: "user-1"})
+    db.collection('users').find({ age: {$gt: 10 } }).toArray()
     .then((res) => {
       console.log(res)
     })

@@ -120,6 +120,9 @@ GUID is a 12-byte ObjectId value consists...
 4.  timestamp... clg(id.getTimestamp()) does not take any arguments
 ->  gets the exact time when the GUID was created
 
+step-1: import the ObjectId from mongodb --- const ObjectID = mongodb.ObjectId
+step-2: use ObjectID constructor --- const id = new ObjectID("66312a9b4ac98d5e1d6165b6")
+
 object destructuring:
 method-1 >>>
   const mongodb = require('mongodb')
@@ -163,6 +166,10 @@ findOne:
 7.  if we want to search for an unique document then use it's GUID
   ->  1st arg - findOne:  { _id: "66312a9b4ac98d5e1d6165b5" } this do not give any results.
   ->  1st arg - findOne:  { _id: new ObjectId("66312a9b4ac98d5e1d6165b5") } we get the expected results.
+                                              /
+                here we can use the ObjectID constructor that was created and stored inside variable- Id
+                                            /
+                that is const id = new ObjectID("66312a9b4ac98d5e1d6165b6")
 
 find:
 1.  to find for multiple documents with the specified criteria as a Query object
@@ -173,6 +180,25 @@ find:
   ->  cursor has methods we can use to manipulate the data popularly we use "toArray()" which gets back an array of documents
     ->  toArray takes a callback function which either return an error or an array of results
   ->  "count" which returns the count or number of elements in that result array
+
+ex:
+=> find --- finds many fields using a Query
+  db.collection('users').find({ age: {$gt: 10 } }).toArray()
+    .then((res) => {
+      console.log(res)
+    })
+    .catch((err) => {
+      console.log(err)
+    })
+
+=> findOne --- finds one user takes one arg _id
+  db.collection('users').findOne({ _id: new ObjectID("66312a9b4ac98d5e1d6165b6") }).toArray()
+    .then((res) => {
+      console.log(res)
+    })
+    .catch((err) => {
+      console.log(err)
+    })
 
 * Promises...
 const workOnPromise = new Promise((resolve, reject) => {
@@ -266,6 +292,14 @@ ex:
 deleteMany:
 1-arg:  filter the field that need to be deleted
 ->  this returns a promise and it need to be consumed
+ex:
+  db.collection('users').deleteMany({completed: false, name: "user-1"})
+    .then((res) => {
+      console.log(res)
+    })
+    .catch((err) => {
+      console.log(err)
+    })
 
 deleteOne:
 same code as deleteMany
@@ -274,3 +308,46 @@ conclusion:
 ->  Use deleteOne() when you want to delete a single document that matches certain criteria, and it's sufficient to delete only one document.
 ->  Use deleteMany() when you want to delete multiple documents that match certain criteria, and you want to delete all of them.
 
+__________________________________________________________________________
+the total code will be:
+
+// ------------------------------------------ To perform CRUD operations
+/*
+  * short cut --- const { MongoClient, ObjectID } = require("mongodb");
+*/
+const mongodb = require('mongodb');
+const MongoClient = mongodb.MongoClient
+const ObjectID = mongodb.ObjectId
+
+// Require 'dotenv'
+require("dotenv").config();
+
+// define "connectionURL" of the database we are trying to connect to...
+const uri = process.env.MONGODB_URI;
+
+// set database name
+const databaseName = "task-manager";
+
+// ObjectID constructor
+const id = new ObjectID("663986424fb304f653a3ff07")
+
+// connect to mongodb atlas
+MongoClient.connect(uri)
+  .then((client) => {
+    console.log("connected to database!");
+
+    // accessing database through client.db()
+    const db = client.db(databaseName);
+
+    db.collection('users').find({ age: {$gt: 10 } }).toArray()
+    .then((res) => {
+      console.log(res)
+    })
+    .catch((err) => {
+      console.log(err)
+    })
+
+  })
+  .catch((error) => {
+    console.log("error in connecting!", error);
+  });

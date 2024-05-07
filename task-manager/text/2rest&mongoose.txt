@@ -236,9 +236,92 @@ Intro:
   3. so now we can import and export the code from it.
 
 -> so import mongoose connection from db/mongoose.js into index.js and User model from model/user.js into index.js
-  -> after importing user model we can create a new instance using "new" keyword
+-> do not forget to include a middleware that automatically parses JSON.
+  -> app.use(express.json())
+  -> now, we can create a new instance using "new" keyword... after importing user model
       const user = new User()
   -> User() this takes an object with name, email and password as properties... as we can access it using req.body we can pass them.
   -> after creating User user save() to save the user to database and this returns a promise so use .then() and .catch() to consume that promise.
 
--> 
+-> if something goes wrong while creating an user we get an error and to handle this we use .catch((e)=>{res.send(e)})
+  -> we send back the same error as a response
+-> while sending back the error... change the status code (we get 200 OK either we get an error or not)
+-> when user enters invalid data then we get 200 OK but we have to get 400 series.
+
+Status Codes:
+(visit "httpstatuses.com")
+
+100 series-> informational
+200 series-> success
+300 series-> re-directional
+400 series-> client error
+500 series-> server error
+
+-> to set the status code we have status method on response object.
+  -> res.status()
+-> it takes an argument that is the status code and that will be set before sending the error as response.
+
+
+* Resource creation- Endpoints: Part-2
+
+-> resource created are... tasks with an endpoint {localhost:3000/tasks}
+-> code used for creation of users is the same code used here for task creation also.
+
+conclusion:
+-> related to status codes
+-> when we send data to create user or task and everything went well... express assumes it to be 200 OK.
+-> express sets it to 200 for successful operation
+-> but on httpstatuses we have more than one way to say that things went well.
+-> so... 201 must be an appropriate status code for resource creation.
+
+Note:
+-> at last, we have the REST API endpoints for resource creation (for "C" in CRUD).
+
+
+* Resource READing Endpoints: part-1
+
+-> there are 2 types of endpoints: one to get multiple resources and another to target a specific item by its unique Id.
+-> there will be two endpoints for each users and tasks collection.
+
+Mongoose methods to fetch all users and a user with user-Id...
+-> visit mongoose for these methods and we can find it on queries guides.
+-> this contains a list of methods directly on Model (that is User and Task)
+
+methods for CRUD operations from mongoose are:
+---
+1. DELETE operation:
+Model.deleteMany()
+Model.deleteOne()
+---
+2. FETCHING operation:
+Model.find()
+Model.findOne()
+---
+Model.findById()
+Model.findByIdAndDelete()
+Model.findByIdAndRemove()
+Model.findOneAndDelete()
+---
+3. replace operation:
+Model.replaceOne()
+Model.findOneAndReplace()
+---
+4. UPDATE operation:
+Model.updateOne()
+Model.updateMany()
+Model.findByIdAndUpdate()
+Model.findOneAndUpdate()
+
+Multiple users
+-> to fetch all users we use "find()" with an arg which is an empty object on User model
+  -> User.find({}) --- this returns a promise and which needs to be consumed with .then() and .catch()
+
+Single user
+-> to fetch single user with unique Id
+    -> app.get('/users/:id') --- /users/:id where ":id" is dynamic which is the id of the user when we fetch
+    -> :id changes when requests are being made --- capture the value that changes every time.
+    -> to get access in the route handler so that we can fetch the user correctly.
+
+  -> to this express gives us route parameters so in callback function (req, res) req- request gives us access to params object
+    -> "req.params" gives us all route parameters
+    
