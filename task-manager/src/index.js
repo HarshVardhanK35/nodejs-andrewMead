@@ -15,83 +15,90 @@ app.use(express.json())
  * POST req - resource creation
  * 1st- arg: path
  * 2nd: callback function
- * POST req - to create a new user
 */
-app.post('/users', (req, res) => {
-  const user = new User(req.body)  // create a new instance of user using User model from models/user.js
-  user.save()  // save the created user to db and handle the promise
-  .then(() => {
-    res.status(201)
-    res.send(user)
-  })
-  .catch((err) => {
-    res.status(500).send(err)
-  })
+
+// POST req - to create a new user
+app.post('/users', async (req, res) => {
+  const user =  new User(req.body)  // create a new instance of user using User model from models/user.js
+
+  try{
+    await user.save();              // save the created user to db and handle the promise
+    res.status(201).send(user);
+  }
+  catch(err){
+    res.status(400).send()
+  }
 })
 
 // fetching multiple users --- use find method
-app.get('/users', (req, res) => {
-  User.find({})
-  .then((users) => {
-    res.send(users) // array of users
-  })
-  .catch((err) => {
-    res.status(500).send(err)
-  })
+app.get('/users', async (req, res) => {
+
+  try{
+    const users = await User.find({})
+    res.send(users)
+  }
+  catch(err){
+    res.send(500).send()
+  }
 })
 
 // fetching single user --- using unique Id
-app.get('/users/:id', (req, res) => {
+app.get('/users/:id', async (req, res) => {
 
   const _id = req.params.id;
 
-  User.findById(_id)
-  .then((user) => {
+  try{
+    const user = await User.findById(_id)
+    if(!user){
+      res.status(404).send()
+    }
     res.send(user)
-  })
-  .catch((err) => {
-    res.status(500).send(err)
-  })
+  }
+  catch(err){
+    res.status(500).send()
+  }
 })
 
-app.post('/tasks', (req, res) => {
-
+// create new task
+app.post('/tasks', async (req, res) => {
   const task = new Task(req.body);
 
-  task.save()
-  .then(() => {
-    res.status(201).send(task)
-  })
-  .catch((err) => {
-    res.status(500).send(err)
-  })
+  try{
+    task.save()
+    res.status(201).send()
+  }
+  catch(err) {
+    res.status(400).send(err)
+  }
 })
 
-app.get('/tasks', (req, res) => {
-  Task.find({})
-  .then((task) => {
-    res.send(task)
-  })
-  .catch((err) => {
-    res.status(500).send(err)
-  })
+// get all tasks
+app.get('/tasks', async (req, res) => {
+
+  try{
+    const tasks = await Task.find({})
+    res.send(tasks)
+  }
+  catch(err){
+    res.status(500).send()
+  }
 })
 
-app.get('/tasks/:id', (req, res) => {
+// get a specific task
+app.get('/tasks/:id', async (req, res) => {
 
   const _id = req.params.id
 
-  Task.findById(_id)
-  .then((task) => {
+  try{
+    const task = await Task.findById(_id)
     if(!task){
       return res.status(404).send()
     }
-
     res.send(task)
-  })
-  .catch((err) => {
+  }
+  catch(err) {
     res.status(500).send(err)
-  })
+  }
 })
 
 // listen to the port: 3000

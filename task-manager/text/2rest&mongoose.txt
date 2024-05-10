@@ -315,8 +315,12 @@ Model.findOneAndUpdate()
 Multiple users
 -> to fetch all users we use "find()" with an arg which is an empty object on User model
   -> User.find({}) --- this returns a promise and which needs to be consumed with .then() and .catch()
+
+-> Passing an empty object {} as an argument to User.find({}) means you're specifying an empty filter criteria.
+-> In MongoDB, when you pass an empty object as a filter, it will return all documents from the collection.
+
 ex:
-// fetching multiple users --- use find method
+// fetching multiple users --- use find method...
 app.get('/users', (req, res) => {
   User.find({})
   .then((users) => {
@@ -356,13 +360,85 @@ app.get('/users/:id', (req, res) => {
 -> till now we did single asynchronous operation.
 -> but what if we want to do multiple asynchronous operations.
 
+code snippet:
+require('../src/db/mongoose');
+const Task = require('../src/models/task');
+
+Task.findByIdAndDelete('663dca463325276681873294')
+.then((res) => {
+  console.log(res)
+  return Task.countDocuments({ completed: false })
+})
+.then((res) => {
+  console.log(res)
+})
+.catch((err) => {
+  console.log(err)
+})
+
 conclusion:
 -> to know more on this visit "playground/ 7-promises.js" and "task-manager/ promise-chaining"
 -> lastly, if we get a deprecation warning set "useFindAndModify" property to "false" in options of mongoose.connect(url, options)
 -> because mongoose uses mongodb native driver behind the scenes (we see this only when we use olden version of mongoose)
+
 -> it will look like this...
   mongoose.connect(connectionURL, {
     useNewUrlParser: true,
     useCreateIndex: true,
     useFindAndModify: false
   })
+
+
+* Async/Await
+
+-> set of tools which helps to work with asynchronous promise- based code easily.
+-> these helps to manager the code when we work with a lot of asynchronous operations.
+-> this plays a major role in task-manager app especially with route handler part.
+
+1. theoretical explanation: created a file inside normal playground directory in root folder.
+-> async-await: this allows us to create an async function, in that we can use the await feature.
+-> for more details follow up the code inside (main-folder/ playground/ 8-async-await.js)
+-> to change a function as asynchronous function simply use "async" keyword before the function declaration
+  -> const function = async() => {}
+-> inside the function we can use "await" feature.
+
+ex:
+const add1 = (a, b) => {
+  return new Promise(( res, rej ) => {
+    setTimeout(() => {
+      if(a < 0 || b < 0) {
+        return rej( "Numbers must be positive" )
+      }
+      res(a + b)
+    }, 2000)
+  })
+}
+const addResult1 = async() => {
+  const sum = await add1(1, -2);
+  const sum1 = await add1(sum, 3);
+  return sum1
+}
+addResult1()
+.then((res) => { console.log(res) })
+.catch((err) => { console.log(err) })
+
+-> with code in above example we have error in the 1st line --- const sum = await add1(1, -2) --- as we have to pass only positive numbers we passed a negative number
+-> we know that an error may get so we have to handle the error using "try-catch" block
+
+---------------- Try-Catch block:
+try{
+  const sum = await add1(1, -2);
+}
+catch(err){
+  clg(err)
+}
+
+explanation:
+-> try{ "const sum = await add1(1, -2)" } ... or if it returns error catch the error using "catch(err){}"
+
+important:
+-> async functions return promise as a result and that promise is fulfilled with a value.
+
+2. practical (real-world) explanation: created a file in play-ground directory inside task-manager app directory.
+-> visit (main-route/ task-manager/ playground/ promise-chaining and promise-chaining-1) files.
+-> now the code inside these files are real-world examples so we have to change using async-await.

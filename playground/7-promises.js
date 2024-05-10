@@ -43,6 +43,7 @@ const add = (a, b) => {
     }, 2000)
   })
 }
+
 add(2, 3)
 .then((sum) => {
   console.log(sum)
