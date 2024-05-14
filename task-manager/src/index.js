@@ -88,6 +88,22 @@ app.patch('/users/:id', async(req, res) => {
   }
 })
 
+// delete a user with Id
+app.delete('/users/:id', async(req, res) => {
+  const _id = req.params.id
+    try{
+      const user = await User.findByIdAndDelete(_id)
+
+      if(!user){
+        res.status(404).send("User not found!")
+      }
+      res.send(user)
+    }
+    catch(err){
+      res.status(500).send(err)
+    }
+})
+
 // create new task
 app.post('/tasks', async (req, res) => {
   const task = new Task(req.body);
@@ -159,7 +175,21 @@ app.patch('/tasks/:id', async(req, res) => {
   }
 })
 
+// delete a task with Id
+app.delete('/tasks/:id', async(req, res) => {
+  const _id = req.params.id
+    try{
+      const task = await Task.findByIdAndDelete(_id)
 
+      if(!task){
+        res.status(404).send("Task not found!")
+      }
+      res.send(task)
+    }
+    catch(err){
+      res.status(500).send(err)
+    }
+})
 
 // listen to the port: 3000
 app.listen(port, () => {
