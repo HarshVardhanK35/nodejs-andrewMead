@@ -442,3 +442,83 @@ important:
 2. practical (real-world) explanation: created a file in play-ground directory inside task-manager app directory.
 -> visit (main-route/ task-manager/ playground/ promise-chaining and promise-chaining-1) files.
 -> now the code inside these files are real-world examples so we have to change using async-await.
+
+
+* resource updating endpoints... part-1
+
+>>> main method
+-> we use app.patch() to update an existing resource.
+-> takes two arguments
+  1. path --- gets individual user by it's Id.
+  2. async function(req, res)
+
+>>> method used here...
+-> the mongoose function we use is: Model.findByIdAndUpdate()
+-> this takes three arguments
+  1st... id = req.params.id
+  2nd... data we want to update
+    ---> it must not be the static data object with fields... { 'name': 'Jake' }
+    ---> must provide the dynamic data... { req.body } -> data will be sent through HTTP request -> that is the data from the body tab inside postman.
+  3rd... options: { new: true, runValidators: true }
+    ---> new: true... we will get the latest data after updating.
+    ---> runValidators: true ... validates the data we sent
+-> handles the error using if block and if there is no user send a 404 response
+-> and handle the error using catch block if an error (validation error / server err) has occurred.
+
+>>> if user wants to update a property that does not exist then mongoose is ignoring that but it is an error and need to handle it!
+1. const reqBodyUpdates = Object.keys(req.body)... this converts the properties of ab object and turns it into array of keys as strings
+2. "every" is a method that we used here which checks on each key and returns true... if there is a single false every returns a false as a return value
+ex:
+app.patch('/users/:id', async(req, res) => {
+  const reqBodyUpdates = Object.keys(req.body);
+  const updatesAllowed = ['name', 'email', 'password', 'age'];
+  const isValidOperation = reqBodyUpdates.every((reqBodyUpdate) => {
+    return updatesAllowed.includes(reqBodyUpdate)
+  })
+  if(!isValidOperation) {
+    res.status(400).send({ error: "Invalid updates!" })
+  }
+  const _id = req.params.id
+  try{
+    const user = await User.findByIdAndUpdate(_id, req.body, { new: true, runValidators: true })
+     if(!user){
+      res.status(404).send()
+    }
+    res.send(user)
+  }
+  catch(err){
+    res.status(400).send(e)
+  }
+})
+
+
+* resource updating endpoints... part-2
+-> app.patch('/tasks/:id', async(req, res) => {
+
+  const reqBodyUpdates = Object.keys(req.body);
+  const updatesAllowed = ['description', 'completed'];
+
+  const isValidOperation = reqBodyUpdates.every((reqBodyUpdate) => {
+    return updatesAllowed.includes(reqBodyUpdate)
+  })
+
+  if(!isValidOperation) {
+    res.status(400).send({ error: "Invalid updates!" })
+  }
+
+  const _id = req.params.id
+
+  try{
+    const task = await Task.findByIdAndUpdate(_id, req.body, { new: true, runValidators: true })
+
+     if(!task){
+      res.status(404).send()
+    }
+    res.send(task)
+  }
+  catch(err){
+    res.status(400).send(e)
+  }
+})
+
+

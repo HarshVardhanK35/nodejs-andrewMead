@@ -59,6 +59,35 @@ app.get('/users/:id', async (req, res) => {
   }
 })
 
+// updating a single user with Id
+app.patch('/users/:id', async(req, res) => {
+
+  const reqBodyUpdates = Object.keys(req.body);
+  const updatesAllowed = ['name', 'email', 'password', 'age'];
+
+  const isValidOperation = reqBodyUpdates.every((reqBodyUpdate) => {
+    return updatesAllowed.includes(reqBodyUpdate)
+  })
+
+  if(!isValidOperation) {
+    res.status(400).send({ error: "Invalid updates!" })
+  }
+
+  const _id = req.params.id
+
+  try{
+    const user = await User.findByIdAndUpdate(_id, req.body, { new: true, runValidators: true })
+
+     if(!user){
+      res.status(404).send()
+    }
+    res.send(user)
+  }
+  catch(err){
+    res.status(400).send(err)
+  }
+})
+
 // create new task
 app.post('/tasks', async (req, res) => {
   const task = new Task(req.body);
@@ -100,6 +129,37 @@ app.get('/tasks/:id', async (req, res) => {
     res.status(500).send(err)
   }
 })
+
+// updating a single user with Id
+app.patch('/tasks/:id', async(req, res) => {
+
+  const reqBodyUpdates = Object.keys(req.body);
+  const updatesAllowed = ['description', 'completed'];
+
+  const isValidOperation = reqBodyUpdates.every((reqBodyUpdate) => {
+    return updatesAllowed.includes(reqBodyUpdate)
+  })
+
+  if(!isValidOperation) {
+    res.status(400).send({ error: "Invalid updates!" })
+  }
+
+  const _id = req.params.id
+
+  try{
+    const task = await Task.findByIdAndUpdate(_id, req.body, { new: true, runValidators: true })
+
+     if(!task){
+      res.status(404).send()
+    }
+    res.send(task)
+  }
+  catch(err){
+    res.status(400).send(err)
+  }
+})
+
+
 
 // listen to the port: 3000
 app.listen(port, () => {
