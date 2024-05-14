@@ -520,18 +520,37 @@ app.patch('/users/:id', async(req, res) => {
 * resource delete endpoints
 
 // task deletion: delete a task with Id
-app.delete('/tasks/:id', async(req, res) => {
+app.delete('/users/:id', async(req, res) => {
   const _id = req.params.id
     try{
-      const task = await Task.findByIdAndDelete(_id)
+      const user = await User.findByIdAndDelete(_id)
 
-      if(!task){
-        res.status(404).send("Task not found!")
+      if(!user){
+        res.status(404).send("User not found!")
       }
-      res.send(task)
+      res.send(user)
     }
     catch(err){
       res.status(500).send(err)
     }
 })
 
+
+* Separate the route files
+
+Intro:
+-> we made the main index file complex with all routes included in it.
+-> so we separate the rotes for users into a new file same for task routes too.
+
+steps:
+>>> include a line in index.js that is: const router = new express.Router()
+  -> class that provides a way to create modular, mountable route handlers
+  -> It allows you to define routes and middleware separately and then combine them into a single router
+>>> we can access CRUD methods on the object we have created that is "router"
+  -> router.get(); router.delete(); etc.
+>>> but these methods can not work it needs a middleware that is: app.use(router)
+>>> inside "src" directory create a folder "routers" and in that create a "user.js" to inject all the routes that were created inside "index.js"
+>>> include the code inside user.js and export it from there and import it inside main file(index) "const userRouter" = require('./routes/user')
+  -> to use the "userRouter" we must use a middleware "app.use(userRouter)"
+>>> and replace all app.get()... app.post() etc. with "router" because the "app" is no longer exists inside the user.js routes
+>>> 

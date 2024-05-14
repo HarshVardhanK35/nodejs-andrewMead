@@ -2,8 +2,8 @@
 const express = require('express');
 
 require('./db/mongoose')
-const User = require('./models/user');
-const Task = require('./models/task')
+const userRouter = require('./routers/user');
+const taskRouter = require('./routers/task')
 
 const app = express()
 const port = process.env.PORT || 3000
@@ -11,185 +11,11 @@ const port = process.env.PORT || 3000
 // middleware - to parse the incoming JSON
 app.use(express.json())
 
-/*
- * POST req - resource creation
- * 1st- arg: path
- * 2nd: callback function
-*/
+// middleware - to use routes
+app.use(userRouter)
 
-// POST req - to create a new user
-app.post('/users', async (req, res) => {
-  const user =  new User(req.body)  // create a new instance of user using User model from models/user.js
-
-  try{
-    await user.save();              // save the created user to db and handle the promise
-    res.status(201).send(user);
-  }
-  catch(err){
-    res.status(400).send()
-  }
-})
-
-// fetching multiple users --- use find method
-app.get('/users', async (req, res) => {
-
-  try{
-    const users = await User.find({})
-    res.send(users)
-  }
-  catch(err){
-    res.send(500).send()
-  }
-})
-
-// fetching single user --- using unique Id
-app.get('/users/:id', async (req, res) => {
-
-  const _id = req.params.id;
-
-  try{
-    const user = await User.findById(_id)
-    if(!user){
-      res.status(404).send()
-    }
-    res.send(user)
-  }
-  catch(err){
-    res.status(500).send()
-  }
-})
-
-// updating a single user with Id
-app.patch('/users/:id', async(req, res) => {
-
-  const reqBodyUpdates = Object.keys(req.body);
-  const updatesAllowed = ['name', 'email', 'password', 'age'];
-
-  const isValidOperation = reqBodyUpdates.every((reqBodyUpdate) => {
-    return updatesAllowed.includes(reqBodyUpdate)
-  })
-
-  if(!isValidOperation) {
-    res.status(400).send({ error: "Invalid updates!" })
-  }
-
-  const _id = req.params.id
-
-  try{
-    const user = await User.findByIdAndUpdate(_id, req.body, { new: true, runValidators: true })
-
-     if(!user){
-      res.status(404).send()
-    }
-    res.send(user)
-  }
-  catch(err){
-    res.status(400).send(err)
-  }
-})
-
-// delete a user with Id
-app.delete('/users/:id', async(req, res) => {
-  const _id = req.params.id
-    try{
-      const user = await User.findByIdAndDelete(_id)
-
-      if(!user){
-        res.status(404).send("User not found!")
-      }
-      res.send(user)
-    }
-    catch(err){
-      res.status(500).send(err)
-    }
-})
-
-// create new task
-app.post('/tasks', async (req, res) => {
-  const task = new Task(req.body);
-
-  try{
-    task.save()
-    res.status(201).send()
-  }
-  catch(err) {
-    res.status(400).send(err)
-  }
-})
-
-// get all tasks
-app.get('/tasks', async (req, res) => {
-
-  try{
-    const tasks = await Task.find({})
-    res.send(tasks)
-  }
-  catch(err){
-    res.status(500).send()
-  }
-})
-
-// get a specific task
-app.get('/tasks/:id', async (req, res) => {
-
-  const _id = req.params.id
-
-  try{
-    const task = await Task.findById(_id)
-    if(!task){
-      return res.status(404).send()
-    }
-    res.send(task)
-  }
-  catch(err) {
-    res.status(500).send(err)
-  }
-})
-
-// updating a single user with Id
-app.patch('/tasks/:id', async(req, res) => {
-
-  const reqBodyUpdates = Object.keys(req.body);
-  const updatesAllowed = ['description', 'completed'];
-
-  const isValidOperation = reqBodyUpdates.every((reqBodyUpdate) => {
-    return updatesAllowed.includes(reqBodyUpdate)
-  })
-
-  if(!isValidOperation) {
-    res.status(400).send({ error: "Invalid updates!" })
-  }
-
-  const _id = req.params.id
-
-  try{
-    const task = await Task.findByIdAndUpdate(_id, req.body, { new: true, runValidators: true })
-
-     if(!task){
-      res.status(404).send()
-    }
-    res.send(task)
-  }
-  catch(err){
-    res.status(400).send(err)
-  }
-})
-
-// delete a task with Id
-app.delete('/tasks/:id', async(req, res) => {
-  const _id = req.params.id
-    try{
-      const task = await Task.findByIdAndDelete(_id)
-
-      if(!task){
-        res.status(404).send("Task not found!")
-      }
-      res.send(task)
-    }
-    catch(err){
-      res.status(500).send(err)
-    }
-})
+// middleware - to task routes
+app.use(taskRouter)
 
 // listen to the port: 3000
 app.listen(port, () => {
