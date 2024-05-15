@@ -13,13 +13,22 @@ const User = require('../models/user')
 // POST req - to create a new user
 router.post('/users', async (req, res) => {
   const user =  new User(req.body)  // create a new instance of user using User model from models/user.js
-
   try{
     await user.save();              // save the created user to db and handle the promise
     res.status(201).send(user);
   }
   catch(err){
-    res.status(400).send()
+    res.status(400).send(err)
+  }
+})
+
+router.post('/users/login', async (req, res) => {
+  try {
+    const user = await User.findByCredentials(req.body.email, req.body.password)
+    res.send(user)
+  }
+  catch(err) {
+    res.status(400).send(err)
   }
 })
 
@@ -69,7 +78,14 @@ router.patch('/users/:id', async(req, res) => {
   const _id = req.params.id
 
   try{
-    const user = await User.findByIdAndUpdate(_id, req.body, { new: true, runValidators: true })
+    const user = await User.findById(_id)
+    reqBodyUpdates.forEach((update) => {
+      user[update] = req.body[update]
+    })
+    await user.save()
+
+    // this is commented because it is bypassing and directly updating in the database
+    // const user = await User.findByIdAndUpdate(_id, req.body, { new: true, runValidators: true })
 
      if(!user){
       res.status(404).send()

@@ -1,0 +1,200 @@
+* Section Intro *
+-----------------
+1. focus on locking all the data.
+2. all API endpoints are accessible to public, anyone access the data. so any user have to sign-up and login to view / change the data.
+3. so in this section a user cannot modify another user's data in the database.
+
+-> so in this section... we focus on authentication, password security, database and data relationships etc.
+
+
+
+* securely storing passwords in database: part-1 *
+--------------------------------------------------
+
+Note:
+-----
+-> as there are two ways to hash the password (encrypt and bcrypt)
+-> it is recommended to use bcrypt because by using encrypt we get the same password back if we hack the password.
+-> encrypt are reversible and bcrypt algorithms are irreversible.
+
+1. till now we have been storing passwords as plain text inside database (that is not a right practice).
+2. we have to hash the password... the algorithm that we will be using is "bcrypt" which is not reversible.
+  -> we can do this by using "bcrypt.js" from npm modules install the module to hash the password.
+  -> to install bcrypt as a dependency... use: "npm i bcryptjs"
+3. we have to use async-await functionality... as we are working with promises from bcryptjs.
+4. bcrypt provides a method that is "hash"
+
+bcrypt - methods
+-----------------
+1. this takes the password we entered as a 1st argv.
+2. number as no. of rounds we want to perform on that plain text password.
+  -> the no. of rounds tells how many times the hashing algorithm has to be executed.
+  -> as bcrypt's creator suggested that "8" as a good number for hashing.
+    -> it is not safe if the number is less than 8 and processing runs slower if it exceeds.
+3. while logging, to check the entered password is same as that we entered while registering... we have a method called "compare"
+  -> this gives us a promise
+  -> takes 2 argv... (1. plain text password --- 2. hashed password)
+  -> returns a boolean as a result after consuming the promise.
+ex:
+
+const bcrypt = require('bcryptjs')
+const myFunction = async() => {
+
+  // for hashing the password
+  const password = "Har123@Wip"
+  const hashedPassword = async bcrypt.hash(password, 8)
+  // clg(hashedPassword);
+
+  // for comparing the password
+
+}
+
+
+
+
+* securely storing passwords in database: part-2 *
+--------------------------------------------------
+
+Into:
+-----
+1. in this we are going to integrate bcrypt to hash the passwords inside the Task Manager API.
+2. we have to hash the password at creating the user and updating the user
+
+-> in order to add a functionality there is no need to change the existing code.
+-> we customize the user model... mongoose supports middleware.
+
+middleware:
+-> with this we can register some functions to run before or after given events occur
+-> there are: (validate, save, remove, init)
+-> save: we can run a piece of code before or after a user is saved (in our case we have to run the code before the user is saved)
+
+steps:
+
+1. in the code for user model we created the allowed properties and passed directly as the 2nd argv inside mongoose.model('User', {schema goes here})
+  -> so here we create the "userSchema" separately and pass the model into it (for more details check the code)
+
+ex:
+const userSchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true, trim: true, },
+    email: { type: String, required: true, lowercase: true, trim: true,
+      validate(value) {
+        if(!validator.isEmail(value)){
+          throw new Error("Email is invalid!")
+        }
+      }
+    },
+    password: { type: String, required: true, trim: true, minlength: 7,
+      validate(value) {
+        if(value.toLowerCase().includes("password")){
+          throw new Error("Invalid password!")
+        }
+      }
+    },
+    age: { type: Number, default: 0,
+      validate(value) {
+        if(value < 0) {
+          throw new Error('Age must be a positive number!')
+        }
+      }
+    }
+  }
+)
+const User = mongoose.model('User', userSchema);
+
+2. so we can access the schema.. on schema we have 2 methods (pre and post) "pre" --- before an event and "post" --- for after an event
+  -> so we run before an event so it is "pre"
+  -> this takes two argv (name of the function, function to run)
+
+3. the function passed uses binding so we have to use normal async function
+  -> const user = this... Here, this refers to the document being saved.
+  -> In Mongoose middleware functions, this represents the document itself.
+
+4. when we update the "user" using this middleware then "findByIdAndUpdate" bypasses the middleware functions defined inside mongoose schema
+  -> it performs a direct update operation on the database without going through the Mongoose middleware hooks such as pre and post hooks.
+  -> so we have to use traditional way to update a user
+  -> so we update the document using "findById" followed by modifying its properties and then calling "save()".
+
+ex:
+  const user = await User.findById(_id)
+    reqBodyUpdates.forEach((update) => {
+      user[update] = req.body[update]
+  })
+  await user.save()
+-> this is the small modification in user routes inside update route that needed to run the middleware.
+
+5. check if the password is actually hashed before so we do not hash it again.
+  -> user has a method... isModified('password') checks
+  -> this condition checks if the password field of the user document has been modified.
+  -> if it has, it means that the password is being updated or created for the first time.
+
+6. we pass "next" to the function... what is next? and how does js knows that we are done with running of the code?
+  -> "next" takes care of it... it say that function is finished...
+  -> so we simply call next after we are done running our code
+ex:
+userSchema.pre('save', async function(next) {
+  const user = this  // accessing the model using "this"
+  if(user.isModified('password')){
+    user.password = await bcrypt.hash(user.password, 8)
+  }
+  next()
+})
+
+conclusion:
+-----------
+-> without adding the password logic at multiple places so 2 routes are related to this middleware.
+
+modification inside update route of "taskRoute"
+-----------------------------------------------
+-> without using "findByIdAndUpdate" inside update route of taskRoutes...
+-> we 1st find a task by it's id and alter task properties and save the task
+
+
+
+* logging in users
+------------------
+
+1. in this we create an endpoint that help user to log-in with their existing account
+2. setting up a new route in "userRoute"
+3. the login uses post method and path is "/users/login"
+  -> we find the user by their email and password
+  -> for this... we gonna use method that is not in-built... "findByCredentials()" which takes in email and password and it will compare it.
+5. the arguments will be email from body of a request and password from same.
+6. so if we want to use a method that we had defined inside userRoute then we have to add the below line...
+  -> userSchema.statics.findByCredentials = async (email, password) => {}
+  -> defined inside user-model and can be accessed inside userRoute
+7. modification inside userSchema that is email must be unique (unique: true)
+8. so we can understand the code right below...
+ex:
+models/user.js
+--------------
+// find a user by their email and password before login
+userSchema.statics.findByCredentials = async (email, password) => {
+  const user = await User.findOne({ email: email })
+  // * IF USER WAS NOT FOUND
+  if(!user){
+    throw new Error('Unable to login!')
+  }
+  // * IF USER WAS FOUND CHECK THE PASSWORD
+  const isMatch = await bcrypt.compare(password, user.password)
+  if(!isMatch){  // * IF PASSWORD IS NOT A MATCH
+    throw new Error('Unable to login!')
+  }
+  return user // * IF USER WAS FOUND
+}
+
+routes/user.js
+--------------
+router.post('/users/login', async (req, res) => {
+  try {
+    const user = await User.findByCredentials(req.body.email, req.body.password)
+    res.send(user)
+  }
+  catch(err) {
+    res.status(400).send()
+  }
+})
+
+conclusion:
+-----------
+-> after all of this test the work by dropping the database and create a new one by saving the project
