@@ -15,7 +15,12 @@ router.post('/users', async (req, res) => {
   const user =  new User(req.body)  // create a new instance of user using User model from models/user.js
   try{
     await user.save();              // save the created user to db and handle the promise
-    res.status(201).send(user);
+
+    // after saving the user generate a token
+    const token = await user.generateAuthToken()
+
+
+    res.status(201).send({ user, token });
   }
   catch(err){
     res.status(400).send(err)
@@ -24,8 +29,9 @@ router.post('/users', async (req, res) => {
 
 router.post('/users/login', async (req, res) => {
   try {
-    const user = await User.findByCredentials(req.body.email, req.body.password)
-    res.send(user)
+    const user = await User.findByCredentials(req.body.email, req.body.password);
+    const token = await user.generateAuthToken()
+    res.send({ user, token })
   }
   catch(err) {
     res.status(400).send(err)

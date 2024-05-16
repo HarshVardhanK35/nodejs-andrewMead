@@ -1,16 +1,16 @@
 * Section Intro *
 -----------------
 1. focus on locking all the data.
+
 2. all API endpoints are accessible to public, anyone access the data. so any user have to sign-up and login to view / change the data.
+
 3. so in this section a user cannot modify another user's data in the database.
 
 -> so in this section... we focus on authentication, password security, database and data relationships etc.
-
-
+___________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
 
 * securely storing passwords in database: part-1 *
 --------------------------------------------------
-
 Note:
 -----
 -> as there are two ways to hash the password (encrypt and bcrypt)
@@ -18,46 +18,47 @@ Note:
 -> encrypt are reversible and bcrypt algorithms are irreversible.
 
 1. till now we have been storing passwords as plain text inside database (that is not a right practice).
+
 2. we have to hash the password... the algorithm that we will be using is "bcrypt" which is not reversible.
   -> we can do this by using "bcrypt.js" from npm modules install the module to hash the password.
   -> to install bcrypt as a dependency... use: "npm i bcryptjs"
+
 3. we have to use async-await functionality... as we are working with promises from bcryptjs.
+
 4. bcrypt provides a method that is "hash"
 
 bcrypt - methods
 -----------------
-1. this takes the password we entered as a 1st argv.
+1. this takes the password we entered as a 1st arg.
+
 2. number as no. of rounds we want to perform on that plain text password.
   -> the no. of rounds tells how many times the hashing algorithm has to be executed.
   -> as bcrypt's creator suggested that "8" as a good number for hashing.
     -> it is not safe if the number is less than 8 and processing runs slower if it exceeds.
+
 3. while logging, to check the entered password is same as that we entered while registering... we have a method called "compare"
   -> this gives us a promise
-  -> takes 2 argv... (1. plain text password --- 2. hashed password)
+  -> takes 2 arg... (1. plain text password --- 2. hashed password)
   -> returns a boolean as a result after consuming the promise.
-ex:
 
+ex:
 const bcrypt = require('bcryptjs')
 const myFunction = async() => {
-
-  // for hashing the password
-  const password = "Har123@Wip"
+  const password = "Har123@Wip"                                       // for hashing the password
   const hashedPassword = async bcrypt.hash(password, 8)
   // clg(hashedPassword);
 
-  // for comparing the password
-
+  const isMatched = await bcrypt.compare(password, hashedPassword)    // for comparing the password
+  // clg(isMatched)                                                   // returns a boolean
 }
-
-
-
+___________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
 
 * securely storing passwords in database: part-2 *
 --------------------------------------------------
-
 Into:
 -----
 1. in this we are going to integrate bcrypt to hash the passwords inside the Task Manager API.
+
 2. we have to hash the password at creating the user and updating the user
 
 -> in order to add a functionality there is no need to change the existing code.
@@ -70,7 +71,7 @@ middleware:
 
 steps:
 
-1. in the code for user model we created the allowed properties and passed directly as the 2nd argv inside mongoose.model('User', {schema goes here})
+1. in the code for user model we created the allowed properties and passed directly as the 2nd arg inside mongoose.model('User', {schema goes here})
   -> so here we create the "userSchema" separately and pass the model into it (for more details check the code)
 
 ex:
@@ -104,10 +105,10 @@ const User = mongoose.model('User', userSchema);
 
 2. so we can access the schema.. on schema we have 2 methods (pre and post) "pre" --- before an event and "post" --- for after an event
   -> so we run before an event so it is "pre"
-  -> this takes two argv (name of the function, function to run)
+  -> this takes two arg (name of the function, function to run)
 
 3. the function passed uses binding so we have to use normal async function
-  -> const user = this... Here, this refers to the document being saved.
+  -> const user = this... Here, this refers to the document being saved (user document that has been created).
   -> In Mongoose middleware functions, this represents the document itself.
 
 4. when we update the "user" using this middleware then "findByIdAndUpdate" bypasses the middleware functions defined inside mongoose schema
@@ -148,39 +149,43 @@ modification inside update route of "taskRoute"
 -----------------------------------------------
 -> without using "findByIdAndUpdate" inside update route of taskRoutes...
 -> we 1st find a task by it's id and alter task properties and save the task
-
-
+___________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
 
 * logging in users
 ------------------
-
 1. in this we create an endpoint that help user to log-in with their existing account
+
 2. setting up a new route in "userRoute"
+
 3. the login uses post method and path is "/users/login"
   -> we find the user by their email and password
   -> for this... we gonna use method that is not in-built... "findByCredentials()" which takes in email and password and it will compare it.
+
 5. the arguments will be email from body of a request and password from same.
+
 6. so if we want to use a method that we had defined inside userRoute then we have to add the below line...
   -> userSchema.statics.findByCredentials = async (email, password) => {}
   -> defined inside user-model and can be accessed inside userRoute
+
 7. modification inside userSchema that is email must be unique (unique: true)
+
 8. so we can understand the code right below...
 ex:
 models/user.js
 --------------
-// find a user by their email and password before login
-userSchema.statics.findByCredentials = async (email, password) => {
+// find a user by their email and password before login...
+serSchema.statics.findByCredentials = async (email, password) => {
   const user = await User.findOne({ email: email })
-  // * IF USER WAS NOT FOUND
+
   if(!user){
-    throw new Error('Unable to login!')
+    throw new Error('Unable to login!')                                   // * IF USER WAS NOT FOUND
   }
-  // * IF USER WAS FOUND CHECK THE PASSWORD
-  const isMatch = await bcrypt.compare(password, user.password)
-  if(!isMatch){  // * IF PASSWORD IS NOT A MATCH
-    throw new Error('Unable to login!')
+
+  const isMatch = await bcrypt.compare(password, user.password)           // * IF USER WAS FOUND CHECK THE PASSWORD
+  if(!isMatch){
+    throw new Error('Unable to login!')                                   // * IF PASSWORD IS NOT A MATCH
   }
-  return user // * IF USER WAS FOUND
+  return user                                                             // * IF USER WAS FOUND
 }
 
 routes/user.js
@@ -198,3 +203,185 @@ router.post('/users/login', async (req, res) => {
 conclusion:
 -----------
 -> after all of this test the work by dropping the database and create a new one by saving the project
+___________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+
+* JSON web tokens
+-----------------
+intro:
+------
+1. every express route created will either be public or placed behind authentication (private).
+2. every route instead of (sign-up and login) need to be authenticated.
+3. if we want to delete a task we need to be authenticated... (so that we will not delete the tasks created by others)
+
+for 3rd point, what we need to do?
+----------------------------------
+1. set up the login request to send an authentication token
+
+why this section?
+-----------------
+-> in this section...
+  -> we learn how to create and mange these authentication tokens
+  -> we will be using JWT (JSON Web Tokens) for authentication
+
+
+steps to create a token:
+------------------------
+1. visit npm website -> search jsonwebtoken -> install in the root folder (npm i jsonwebtoken)
+
+2. how can we create authentication tokens and mange them:
+  -> import the library
+  -> use sign method available on JWT library
+    -> "jwt.sign()" the return value from this is new authentication token for user when he tries to login
+    -> sign() takes two arg... 1st object and 2nd is String
+      -> 1st: object takes unique value that user has with him that must be the ID that mongodb provides when a user was created
+      -> 2nd: secret string (used to sign the token in)... this takes any series of characters ex: "Iamstudyingnowisanodejscourse"
+snippet:
+--------
+const myFun = async() => {
+  const token = jwt.sign({ _id: 'abc123', "Iamstudyingnowisanodejscourse" })
+  clg(token)
+}
+
+output:
+------
+1. output will be a token with three parts separated by period
+
+2. the token consists of base-64 encoded string
+  -> "header" >>> meta info
+  -> "payload / body" >>> related to data we provide in the object
+  -> "signature" >>> to verify the token when we login
+
+
+steps to verify that token:
+---------------------------
+1. jwt.verify() >>> takes 2 arg
+  -> 1st arg: token we have created
+  -> 2nd arg: secret string that we have passed while creating the token
+
+Note:
+-----
+-> this secret code must be stored as an environment variable
+
+output:
+2. after verification we get decoded data of "payload" (payload >>> which is the second part of the encoded string)
+
+
+steps to expire a token after sometime:
+---------------------------------------
+1. while creating the token we provide a 3rd argument that will be an object type
+2. { expiresIn: '7 days' }
+  -> expiresIn takes the time period in plain english... after that certain time period the token will be expired
+
+ex:
+const jwt = require('jsonwebtoken')
+
+const myFun = async() => {
+
+  // creating JWT auth token
+  const token = jwt.sign({_id: "idOfTheUserGeneratedAfterSigningUp"}, 'thisIsForJWTAuthentication', { expiresIn: "7 days" })
+  console.log(token)
+
+  // verifying the user using JWT
+  const verifyData = jwt.verify(token, 'thisIsForJWTAuthentication')
+  console.log(verifyData)
+}
+
+output:
+-> after verification we get decoded data of "payload"
+___________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+
+* Generating Authentication Tokens
+----------------------------------
+Intro:
+------
+1. the routes that are responsible for creating new user and logging in existing user send us back the JWT auth tokens
+
+2. we create a function that generate tokens that we reuse in both signing up and logging in users.
+
+in user routes - at login (routes/user)
+---------------------------------------
+router.post('/users/login', async (req, res) => {
+  try {
+    const user = await User.findByCredentials(req.body.email, req.body.password);
+    const token = await user.generateAuthToken()
+    res.send({ user, token })                                                             // we are sending back the user data and token
+  }
+  catch(err) {
+    res.status(400).send(err)
+  }
+})
+
+explanation
+------------
+1. const token = await user.generateAuthToken()
+-> why the function generateAuthToken() is on the "user" instance?
+  -> it's common to associate authentication tokens with individual users.
+  -> This is because tokens are often used to identify and authenticate specific users when they interact with the system.
+BECAUSE?
+-> Each user needs their own unique authentication token.
+
+in user model (models/user)
+---------------------------
+Note - for the below code:
+--------------------------
+-> as we are using "this" binding we have to use normal functions not arrow fns because "this" keyword does not work on arrow fns.
+1. model methods >>> User.statics:
+  -> model methods are accessible oon the models.
+  -> Static methods are called on the model itself and operate at the model level, without access to any specific instance properties.
+
+2. instance methods >>> user.methods:
+  -> Instance methods are called on individual documents (instances) and have access to instance-specific properties using this.
+  -> instance methods are accessible on instances
+
+3. user = this
+  -> "this" refers to the whole instance of the document that was created with User-Model
+
+4. const token = jwt.sign({ _id: user._id.toString() }, 'thisIsTaskMangerApplication')
+  -> as explained before "sign()" method takes unique property from user created and a secretPrivateKey (the secretPrivateKey has to be set as environment variable)
+
+snippet in user model (models/user.js)
+--------------------------------------
+userSchema.methods.generateAuthToken = async function() {
+  const user = this;
+  const token = jwt.sign({ _id: user._id.toString() }, 'thisIsTaskMangerApplication')
+  return token
+}
+
+conclusion
+----------
+1. the client can take this authentication token and can use it to make requests which need authentication
+
+
+store the tokens:
+-----------------
+1. as long as the token exists that user who holds that token is stayed logged in
+
+2. we have to store all the tokens we generate for a user as part of the user document
+
+modification inside user model:
+------------------------------
+1. add another field inside User model that is:
+tokens: [{
+  token: {
+    type: String,
+    required: true
+    }
+}]
+
+2. so the generated token has to be concatenated to this array of tokens objects instead of returning
+
+updated code will be
+--------------------
+userSchema.methods.generateAuthToken = async function() {
+  const user = this;
+  const token = jwt.sign({ _id: user._id.toString() }, 'thisIsTaskMangerApplication')
+  user.tokens = user.tokens.concat({ token: token })
+  await user.save()
+}
+
+3. token was stored as a sub-doc with it's own Id that has generated while creating
+
+
+Note:
+-----
+1. like passwords we have to hide tokens also
