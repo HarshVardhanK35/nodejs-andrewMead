@@ -9,6 +9,7 @@
 -> so in this section... we focus on authentication, password security, database and data relationships etc.
 ___________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
 
+
 * securely storing passwords in database: part-1 *
 --------------------------------------------------
 Note:
@@ -52,6 +53,7 @@ const myFunction = async() => {
   // clg(isMatched)                                                   // returns a boolean
 }
 ___________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+
 
 * securely storing passwords in database: part-2 *
 --------------------------------------------------
@@ -151,6 +153,7 @@ modification inside update route of "taskRoute"
 -> we 1st find a task by it's id and alter task properties and save the task
 ___________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
 
+
 * logging in users
 ------------------
 1. in this we create an endpoint that help user to log-in with their existing account
@@ -204,6 +207,7 @@ conclusion:
 -----------
 -> after all of this test the work by dropping the database and create a new one by saving the project
 ___________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+
 
 * JSON web tokens
 -----------------
@@ -289,6 +293,7 @@ const myFun = async() => {
 output:
 -> after verification we get decoded data of "payload"
 ___________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+
 
 * Generating Authentication Tokens
 ----------------------------------
@@ -386,6 +391,7 @@ Note:
 1. like passwords we have to hide tokens also
 ___________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
 
+
 * Express Middlewares
 ---------------------
 Intro:
@@ -414,6 +420,7 @@ How to use middlewares?
 steps:
 ------
 -> we use middleware in main file that might be "index.js" or "app.js"
+-> based on functionality we can include middlewares wherever we want
 
 1. we use "app.use()"
     -> this takes in a fun which runs between new request sent and route handler execution
@@ -458,3 +465,76 @@ app.use((req, res, next) => {
   res.status(503).send("site is under maintenance... check back soon!")
 })
 
+explanation:
+------------
+-> this runs for every single route handler
+-> to send a response to the client whenever the site is under maintenance
+___________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+
+
+* Accepting Authentication Tokens
+---------------------------------
+intro
+-----
+1. so here we gonna learn how to use middlewares to authenticate a user using the token associated with him.
+
+2. so it is best to create a separate file to declare middlewares (for the best practice)
+
+3. inside src directory create a middleware folder which holds separate files for each function
+    -> for example: if it is for authentication >>> auth.js file
+
+4. to export that middleware use module.exports from auth.js
+    4.1 -> to import it into other files:
+        -> as this is an authentication middleware we use this middleware inside user-route to check whether that user is valid or not
+        -> import it using require function and the return value will be stored inside "auth" variable
+            -> const auth = require('..path/ to middleware/ file')
+
+    4.2 -> to add middleware function inside a route we pass it as an argument to the HTTP method before we pass the route handler
+        -> router.get("path", "middleware function", "route handler")
+Note:
+-----
+-> route handler will be executed only if we call next() inside middleware function.
+ex:
+----
+middleware/auth.js
+--------------------
+app.use((req, res, next) => {
+  clg("auth middleware")
+  next()
+})
+
+routers/user.js
+--------------
+// import >>>
+const auth = require('middleware/auth.js');
+
+// insert middleware >>>
+router.get('/users', auth, (req, res) => {          // middleware --- "auth" used here
+  try {
+    const users =  await User.find({})
+    res.send(users)
+  }
+  catch(err) {
+    res.status(500).send(err)
+  }
+})
+
+use-case
+--------
+-> what does this auth.js do?
+-> how does authentication work?
+
+1. authentication starts from the authentication token that generates every time a user logs in.
+    -> taking that token and providing it to the request user wants to perform
+
+2. copy the entire token and visit the request tab for which we have added auth middleware to (/users)
+    -> so to provide this token... we set up a request header
+        -> go to the header tab inside postman under the request that we have added auth middleware to
+        -> set a key: value pairs to provide additional info to the server
+
+3. so the "Authorization" header is the key and the value will be the bearer-token
+    -> Authorization: Bearer <copied-token>
+    -> "capital A" in Authorization and "capital-B" in Bearer
+-> this is all that client needed to provide to get authenticated
+
+4. 

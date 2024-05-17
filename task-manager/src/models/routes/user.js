@@ -1,4 +1,7 @@
 const express = require('express');
+
+const auth = require('./middleware/auth')
+
 const router = new express.Router()
 
 // import User schema
@@ -39,7 +42,7 @@ router.post('/users/login', async (req, res) => {
 })
 
 // fetching multiple users --- use find method
-router.get('/users', async (req, res) => {
+router.get('/users', auth, async (req, res) => {
 
   try{
     const users = await User.find({})
