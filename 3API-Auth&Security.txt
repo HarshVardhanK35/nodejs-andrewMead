@@ -381,7 +381,80 @@ userSchema.methods.generateAuthToken = async function() {
 
 3. token was stored as a sub-doc with it's own Id that has generated while creating
 
-
 Note:
 -----
 1. like passwords we have to hide tokens also
+___________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+
+* Express Middlewares
+---------------------
+Intro:
+------
+1. every request to the API need to be authenticated so client need to send that token... so the server can validate it.
+
+2. use "express middleware" to get all this done.
+
+What is middleware?
+-------------------
+1. without middleware --- new req -> run route handler
+
+2. with middleware    --- new req -> code to do something -> run route handler
+-> the code in the middle helps us to authenticate the user if the user is valid then route handler works
+
+Important Note:
+---------------
+-> we have to use Middlewares above the "app.use()" calls
+
+why to use Middlewares above the app.use() >>>
+----------------------------------------------
+->
+
+How to use middlewares?
+-----------------------
+steps:
+------
+-> we use middleware in main file that might be "index.js" or "app.js"
+
+1. we use "app.use()"
+    -> this takes in a fun which runs between new request sent and route handler execution
+    -> this fun takes three args that are (req, res, next)
+    -> "next" is specific to register on middleware calls
+
+Note:
+-> "req.method" to return http method involved
+-> "req.path" which returns path used to send request
+
+2. to execute the next middleware or function we have to call "next()" inside a middleware function.
+    -> in the following execution: "new req -> code to do something -> run route handler"
+    -> to execute route handler we have to insert or call next() inside the middleware function
+    -> if not called... the route handler never executes and shows {LOADING...}
+ex:
+----
+app.use((re, res, next) => {
+  clg(req.method, req.path)
+  next()
+})
+
+another simpler example:
+------------------------
+app.use((req, res, next) => {
+  if(req.method === "GET"){
+    res.send("GET requests are temporarily disabled")
+  }
+  else{
+    next()
+  }
+})
+
+explanation:
+------------
+-> the above code runs only for other HTTP requests except for GET request it shows message: <"GET requests are temporarily disabled">
+
+challenge:
+----------
+1. right a middleware fun to tell that website is under maintenance mode
+
+app.use((req, res, next) => {
+  res.status(503).send("site is under maintenance... check back soon!")
+})
+
