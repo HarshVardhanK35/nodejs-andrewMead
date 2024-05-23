@@ -620,7 +620,7 @@ A problem with the below route
 -------------------------------
 -> this fetches all users and their data.
 -> if a user is authenticated and access "/users" he/she gets access to all users data
-  -> change it so that he can only gets his / her data if he/she was authenticated.
+  -> change it so that he can only gets his data if he/she was authenticated.
 
 // fetching multiple users --- use find method
 router.get('/users', auth, async (req, res) => {
@@ -653,7 +653,7 @@ result:
 --------
 -> only a user if that user authenticates with his token
 
--> "/users/me" is the path we should have to use... to get their own profile after authenticating himself / herself
+-> "/users/me" is the path we should have to use... to get their own profile after authenticating him
 1. Purpose: Fetch and return the authenticated user's profile.
 2. Authentication: Uses the auth middleware to ensure the request is made by an authenticated user.
 3. Response: Sends the authenticated user object that the auth middleware attached to req.user
@@ -661,5 +661,113 @@ result:
 Note:
 -----
 1. change the request name inside POSTMAN: from "Read all users" to "Read Profile".
-2. change the route from "/users" to "/users/me" to get only a user after his/her authentication.
+2. change the route from "/users" to "/users/me" to get only a user after his authentication.
+___________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+
+* Advanced POSTMAN
+-------------------
+Intro:
+------
+-> in this, we gonna talk about Postman environments and postman environment variables
+
+we learn:
+---------
+1. we gonna use an automatic URL not a manual URL -> by setting up an URL inside environment section postman
+2. set the token for overall API and use that for every single request using "inherit from the parent"
+
+1. Environment variables:
+-------------------------
+-> inside postman -> add new environment variable -> create "Task Manager API (dev)" and "Task Manager API (prod)"
+-> so that we can switch tabs to set specific variables to those requests
+-> inside env variable - "Task Manager API (dev)"
+  -> set "variable" to "url" and "initial value" to "localhost:3000"
+-> how to use these variables
+  -> inside a request on postman change the url from "localhost:3000/?path" to "{{url}}/?path"
+    -> to use the variable we use {{"variable-name"}}
+-> at last... change the urls for every requests
+
+
+2. Authorization > set token to all requests
+---------------------------------------------
+1st way - set the token:
+------------------------
+-> go to postman -> create a request -> click on Authorization tab -> in the dropdown... select Bearer Token and paste the token on side text box
+
+-> with this we can set token belong to send a specific request without applying same header and value for multiple requests
+
+-> drawback:
+-------------
+-> so this way of setting token... only works for specific request
+-> to apply a same token for every request follow the 2nd way of setting token in postman.
+
+
+2nd way - set the token:
+------------------------
+-> go to postman -> create a new collection -> on the side of collection... click on the three dots -> click on "edit" -> go on to the Authorization tab -> select "Bearer-token" as auth type on drop down menu -> paste the copied token in the text box
+-> to apply this token to a request... create a request -> click Authorization tab -> select the "Inherit auth from parent"
+
+-> this way of setting the token applies for every request we made on postman without manual setting
+
+Note:
+-----
+-> except for create and login users we have to remove the "inherit from parent" option
+
+
+drawback of 2nd method:
+------------------------
+-> every time a user was created... a new token will be generated for him >>> so every time we have to update the token inside the Authorization tabs on postman
+-> solution: to write 3 to 4 lines of JS code to automate this task
+
+solution:
+----------
+1. so we write the code for "create" and "login" user requests under "tests" tab
+  -> "Pre-request Script" this takes JS code that runs before request is sent off
+  -> "Tests" tab this runs the JS code after request was made
+
+2. JS code is to extract token property from the body and sets that token to an environment variable.
+
+3. so we use this environment variable inside the Authorization tab of total collection
+  -> that means we replace the direct token we inserted before with this environment variable that will be created now with JS code
+  -> so we replace it with {{authToken}} which will be a reference to the token that generates every time
+
+-> go to total collection -> click three dots -> click on "edit" -> go on to the Authorization tab -> select Bearer token inside the dropdown -> set the value as {{authToken}} inside the text box.
+
+status-codes
+-------------
+4. we get 201 when we create a user and 200 as when a user logs in
+
+5. in "tests" tab inside a request made on postman write the JS code
+
+snippet to be added inside "login" user request for 200 status code
+------------------------------------------------------------------
+if (pm.response.code === 200) {
+  pm.environment.set('authToken', pm.response.json().token)
+}
+
+snippet to be added inside "create" user request for 201 status code
+-------------------------------------------------------------------
+if (pm.response.code === 201) {
+  pm.environment.set('authToken', pm.response.json().token)
+}
+
+explanation:
+-------------
+1. pm (postman); on this we access status code form response object
+  -> if successful... returns "201" after create-user request and "200" after login-user
+2. check with "if condition" whether request is successful or not
+  -> if successful then use set method
+3. "set" takes in two arguments 'key-name' as 'authToken' and its value will be a "token" taken from 'pm(postman).response.json()'
+  -> 'pm(postman).response.json()' is a json() object and we access the token value from it
+
+conclusion for authToken:
+--------------------------
+1. this Script sets authentication token automatically every time we log in
+2. if the token expires... we run the login request again to get another new token >>> so this token will be automatically applies with written JS code
+3. every thing will be handled behind the scenes and no need to copy and paste the tokens anymore.
+
+quick-summary:
+--------------
+-> in this section we have learnt how to create Postman environments.
+-> environment is a key-value pair that we can access them while working in that environment.
+-> we set up authentication for every request except for login and create user requests
 

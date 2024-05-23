@@ -37,7 +37,7 @@ router.post('/users/login', async (req, res) => {
 
 // fetching multiple users --- use find method
 router.get('/users/me', auth, async (req, res) => {
-  res.send(req.user)
+  res.send( req.user )
 })
 
 // fetching single user --- using unique Id
