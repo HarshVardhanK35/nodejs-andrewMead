@@ -252,7 +252,7 @@ output:
 
 2. the token consists of base-64 encoded string
   -> "header" >>> meta info
-  -> "payload / body" >>> related to data we provide in the object
+  -> "payload / body" >>> contains data we provided in the object
   -> "signature" >>> to verify the token when we login
 
 
@@ -391,16 +391,15 @@ Note:
 1. like passwords we have to hide tokens also
 ___________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
 
-
-* Express Middlewares
----------------------
-Intro:
-------
+* Express Middleware functions
+------------------------------
 1. every request to the API need to be authenticated so client need to send that token... so the server can validate it.
 
 2. use "express middleware" to get all this done.
 
-What is middleware?
+Intro:
+------
+What is middleware --- CHATGPT?
 -------------------
 1. without middleware --- new req -> run route handler
 
@@ -409,19 +408,27 @@ What is middleware?
 
 Important Note:
 ---------------
--> we have to use Middlewares above the "app.use()" calls
+-> we have to use middleware functions above the "app.use()" calls
 
-why to use Middlewares above the app.use() >>>
+why to use middleware functions above the app.use() >>> CHATGPT?
 ----------------------------------------------
 ->
 
-How to use middlewares?
------------------------
+How to use middleware functions?
+--------------------------------
+1. we use middleware to run a function before handling a request
+  -> but if we include middleware functions inside index.js then that will belong to all the routes of our application.
+2. based on functionality we can include middleware functions wherever we want inside routes only.
+  -> so the middleware starts before the req-res that is route - handler of a HTTP request... if we want to add middleware to a HTTP request
+3. so route handler will be called only when middleware includes next() and it calls next()
+
+router.get('/users', auth, async (req, res) => {})
+              /        |                     \
+             /         |                      \
+          path    middleware              Route handler
+
 steps:
 ------
--> we use middleware in main file that might be "index.js" or "app.js"
--> based on functionality we can include middlewares wherever we want
-
 1. we use "app.use()"
     -> this takes in a fun which runs between new request sent and route handler execution
     -> this fun takes three args that are (req, res, next)
@@ -467,18 +474,17 @@ app.use((req, res, next) => {
 
 explanation:
 ------------
--> this runs for every single route handler
+-> this runs for every single route handler cause we had declared inside index.js file
 -> to send a response to the client whenever the site is under maintenance
 ___________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
-
 
 * Accepting Authentication Tokens
 ---------------------------------
 intro
 -----
-1. so here we gonna learn how to use middlewares to authenticate a user using the token associated with him.
+1. so here we gonna learn how to use middleware functions to authenticate a user using the token associated with him.
 
-2. so it is best to create a separate file to declare middlewares (for the best practice)
+2. so it is best to create a separate file to declare middleware functions (for the best practice)
 
 3. inside src directory create a middleware folder which holds separate files for each function
     -> for example: if it is for authentication >>> auth.js file
@@ -524,17 +530,136 @@ use-case
 -> what does this auth.js do?
 -> how does authentication work?
 
-1. authentication starts from the authentication token that generates every time a user logs in.
-    -> taking that token and providing it to the request user wants to perform
+1. authentication starts from when user provides token that generates every time he/she logs in.
+  -> taking that token and providing it in the headers tab inside postman... to the request that user wants to perform
 
-2. copy the entire token and visit the request tab for which we have added auth middleware to (/users)
-    -> so to provide this token... we set up a request header
-        -> go to the header tab inside postman under the request that we have added auth middleware to
-        -> set a key: value pairs to provide additional info to the server
+2. copy the entire token and visit the request (for which we have added auth middleware to (/users)) inside postman... under it go to headers tab
+  -> so to provide this token... we set up a "request" header
+    -> go to the header tab inside postman under the request that we want to make (on that request we have added auth middleware)
+    -> set a key: value pairs to provide additional info to the server
 
 3. so the "Authorization" header is the key and the value will be the bearer-token
-    -> Authorization: Bearer <copied-token>
-    -> "capital A" in Authorization and "capital-B" in Bearer
+  -> Authorization: Bearer <copied-token>
+  -> "capital A" in Authorization in KEY and "capital-B" in Bearer <copied token> inside VALUE
 -> this is all that client needed to provide to get authenticated
 
-4. 
+4. so how can we access this token provided inside headers section of postman-request
+  -> import JSON web token library inside "auth.js- middleware file"
+    -> const jwt = require("jsonwebtoken)
+  -> load in the user-model also... to find that token in the database too... after validation of auth token
+  -> we write code to handle the token
+
+snippet:
+--------
+const jwt = require('jsonwebtoken');
+const User = require('../models/user')
+const auth = async (req, res, next) => {
+  try {
+    // Extract the token from the Authorization header and replaces the "Bearer " with nothing
+    const token = req.header('Authorization').replace('Bearer ', '');
+    // Verify the token to get the decoded payload
+    const decodedToken = jwt.verify(token, 'thisIsTaskMangerApplication');
+    // Find the user by the decoded user ID and ensure the token exists in the user's token array
+    const user = await User.findOne({ _id: decodedToken._id, 'tokens.token': token });
+    // If no user is found, throw an error to be caught by the catch block
+    if (!user) {
+      throw new Error();
+    }
+    // Attach the authenticated user to the request object
+    req.user = user;
+    // Proceed to the next middleware or route handler
+    next();
+  } catch (err) {
+    // Send an error response if authentication fails
+    res.status(401).send({ Error: "Please authenticate!" });
+  }
+}
+module.exports = auth;
+
+explained:
+----------
+1. if no token has provided we get an error... so we used try {} catch(e) {} block to handle error
+
+2. to access the token inside the header we use request.header('Authorization').replace('Bearer ', '')
+ -> it is "header" not "headers"
+ -> to verify token has provided or not we logged to the console
+ -> Authorization is the key-name we provided inside headers tab of the request
+ -> as token comes with "Bearer" we use replace function on it to replace it with nothing ('')
+
+3. usually we check the token using "jwt.verify()"
+ -> this method takes two args.... so we provide token and the secret string we provided at the time of token creation
+ -> when we logged the decodedToken to the console we get an object that contains user Id and iat (iat: time that when token has been issued)
+
+4. so if the token user provided was valid then we find the user with that token in the database
+ -> as the token is decoded we get a payload that is... { _id: '664df8c4f281758273173412', iat: 1716385988 } (iat -> timestamp that when the token was issued)
+ -> so with the Id we got we can find the user using Model.findOne() method
+  -> so findOne takes an object with two key-value pairs
+    -> {_id: decodedToken._id, 'tokens.token': token}
+      -> _id: decodedToken._id >>>
+        -> searches for user with the id
+      -> 'tokens.token': token >>>
+        -> checks for the token still exists in the token array... This is crucial for implementing features like user logout or token expiration
+
+5. if user is found...
+
+if (!user) {
+  throw new Error();
+}
+// Attach the authenticated user to the request object
+req.user = user;
+// Proceed to the next middleware or route handler
+next();
+
+why "req.user = user" was used?
+-------------------------------
+1. By attaching the user object to the request, you make it accessible to any subsequent middleware or route handler.
+  -> this avoids the need to repeat the authentication logic in every route that requires user information.
+
+
+A problem with the below route
+-------------------------------
+-> this fetches all users and their data.
+-> if a user is authenticated and access "/users" he/she gets access to all users data
+  -> change it so that he can only gets his / her data if he/she was authenticated.
+
+// fetching multiple users --- use find method
+router.get('/users', auth, async (req, res) => {
+  try{
+    const users = await User.find({})
+    res.send(users)
+  }
+  catch(err){
+    res.send(500).send()
+  }
+})
+
+result:
+-------
+an array of users
+
+instead use
+-----------
+router.get('/users/me', auth, async (req, res) => {
+  try{
+    const users = await User.find({})
+    res.send(users)
+  }
+  catch(err){
+    res.send(500).send()
+  }
+})
+
+result:
+--------
+-> only a user if that user authenticates with his token
+
+-> "/users/me" is the path we should have to use... to get their own profile after authenticating himself / herself
+1. Purpose: Fetch and return the authenticated user's profile.
+2. Authentication: Uses the auth middleware to ensure the request is made by an authenticated user.
+3. Response: Sends the authenticated user object that the auth middleware attached to req.user
+
+Note:
+-----
+1. change the request name inside POSTMAN: from "Read all users" to "Read Profile".
+2. change the route from "/users" to "/users/me" to get only a user after his/her authentication.
+
