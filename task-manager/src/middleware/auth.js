@@ -17,6 +17,9 @@ const auth = async (req, res, next) => {
       throw new Error();
     }
 
+    // other routes need to access the token
+    req.token = token;
+
     // Attach the authenticated user to the request object
     req.user = user;
 

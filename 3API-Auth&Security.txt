@@ -770,4 +770,63 @@ quick-summary:
 -> in this section we have learnt how to create Postman environments.
 -> environment is a key-value pair that we can access them while working in that environment.
 -> we set up authentication for every request except for login and create user requests
+___________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+
+* Logging Out
+---------------
+Intro:
+-------
+1. in this we create new route to help user to log out of the application also how to remove the token after log out
+2. the main thing is here that when we logged in different devices and log out from a device and I do not want to log out of everything
+  -> we target the specific token for a device
+
+steps:
+--------
+1. inside the code for auth we have to attach the token to the requested object
+  -> req.token = token
+
+2. using try{} catch (err){} block to handle the errors
+
+3. we will use the array-filter method to remove an item from the token's array
+  -> we will update the tokens array on every check on iteration
+  -> if the token we are checking is not equal to the token used for authentication then it returns true and added into the same array
+  -> if return value is false.. then that token will be removed from that array
+
+4. at last we save the user data and that response will be sent back.
+
+ex:
+---
+router.post('/users/logout', auth, async (req, res) => {
+  try{
+    req.user.tokens = req.user.tokens.filter((token) => {
+      return token.token !== req.token
+    })
+    await req.user.save()
+    res.send()
+  }
+  catch(err){
+    res.status(500).send(err)
+  }
+})
+
+
+what if we want to logout from all devices
+-------------------------------------------
+1. use the path "/users/logoutAll"
+
+2. remove every token from the tokens array by using "req.users.tokens = []"
+  -> this will replace every thing inside "req.users.tokens" with an empty array
+
+ex:
+---
+router.post('/users/logoutAll', auth, async (req, res) => {
+  try{
+    req.user.tokens = []
+    await req.user.save()
+    res.send()
+  }
+  catch(err){
+    res.status(500).send(err)
+  }
+})
 

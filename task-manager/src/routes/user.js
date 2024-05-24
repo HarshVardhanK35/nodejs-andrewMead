@@ -7,7 +7,7 @@ const router = new express.Router()
 // import User schema
 const User = require('../models/user')
 
-// POST req - to create a new user
+// POST req - to create a new user that is signup
 router.post('/users', async (req, res) => {
   const user =  new User(req.body)  // create a new instance of user using User model from models/user.js
   try{
@@ -24,6 +24,7 @@ router.post('/users', async (req, res) => {
   }
 })
 
+// login route
 router.post('/users/login', async (req, res) => {
   try {
     const user = await User.findByCredentials(req.body.email, req.body.password);
@@ -32,6 +33,32 @@ router.post('/users/login', async (req, res) => {
   }
   catch(err) {
     res.status(400).send(err)
+  }
+})
+
+// log out route
+router.post('/users/logout', auth, async (req, res) => {
+  try{
+    req.user.tokens = req.user.tokens.filter((token) => {
+      return token.token !== req.token
+    })
+    await req.user.save()
+    res.send()
+  }
+  catch(err){
+    res.status(500).send(err)
+  }
+})
+
+// route to logout from all devices
+router.post('/users/logoutAll', auth, async (req, res) => {
+  try{
+    req.user.tokens = []
+    await req.user.save()
+    res.send()
+  }
+  catch(err){
+    res.status(500).send(err)
   }
 })
 
