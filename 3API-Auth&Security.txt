@@ -57,7 +57,7 @@ ________________________________________________________________________________
 
 * securely storing passwords in database: part-2 *
 --------------------------------------------------
-Into:
+Intro:
 -----
 1. in this we are going to integrate bcrypt to hash the passwords inside the Task Manager API.
 
@@ -752,7 +752,7 @@ if (pm.response.code === 201) {
 
 explanation:
 -------------
-1. pm (postman); on this we access status code form response object
+1. pm (postman); on this we access status code from response object
   -> if successful... returns "201" after create-user request and "200" after login-user
 2. check with "if condition" whether request is successful or not
   -> if successful then use set method
@@ -829,4 +829,86 @@ router.post('/users/logoutAll', auth, async (req, res) => {
     res.status(500).send(err)
   }
 })
+___________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
 
+* Hiding Private Data
+----------------------
+Intro:
+-------
+1. how to secure the user profile data we are sending from the server
+2. the user-data fields that need be hided are... passwords and tokens
+
+steps:
+-------
+1. in user-model create a function called "getPublicProfile()" using instance methods on userSchema
+  -> use this function inside user login and get profile routes at "res.send({ user: user.getPublicProfile() })"
+
+// login route
+router.post('/users/login', async (req, res) => {
+  try {
+    const user = await User.findByCredentials(req.body.email, req.body.password);
+    const token = await user.generateAuthToken()
+
+    res.send({ user: user.getPublicProfile(), token })
+  }
+  catch(err) {
+    res.status(400).send(err)
+  }
+})
+
+2. in the function to hideout the sensitive data like passwords and tokens
+  -> we created "user" object with "toObject()" method from mongoose which returns the shallow copy of user object
+  -> on user object we deleted the passwords and tokens
+  -> returned the user-object
+
+// method to hide sensitive data
+userSchema.methods.getPublicProfile = function() {
+  const user = this;
+  const userData = user.toObject()
+
+  delete userData.password
+  delete userData.tokens
+
+  return userData
+}
+
+(OPTIONAL)
+Problem- repetitive calls for function: getPublicProfile()
+------------------------------------------------------------
+1. on each request we made we get user data that contains sensitive data that need to be hided
+  -> so on every request we have to call this method: getPublicProfile()
+  -> so instead of calling every time we simply automate the process
+    -> so take out the getPublicProfile() method and use "toJSON"
+
+// method to hide sensitive data
+userSchema.methods.toJSON = function() {
+  const user = this;
+  const userData = user.toObject()
+
+  delete userData.password
+  delete userData.tokens
+
+  return userData
+}
+
+2. change on the route at login and other requests where sending user data is needed.
+  -> at res.send({ user: user })
+
+// login route
+router.post('/users/login', async (req, res) => {
+  try {
+    const user = await User.findByCredentials(req.body.email, req.body.password);
+    const token = await user.generateAuthToken()
+
+    res.send({ user: user, token })
+  }
+  catch(err) {
+    res.status(400).send(err)
+  }
+})
+
+explanation (toJSON):
+----------------------
+1. BTS res.send({ user: user }) works like JSON.stringify()
+  -> the objects gets stringified BTS with res.send({ user: user })
+2. when the "toJSON" is used it gets called whenever an object gets stringified.

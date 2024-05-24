@@ -7,7 +7,7 @@ const router = new express.Router()
 // import User schema
 const User = require('../models/user')
 
-// POST req - to create a new user that is signup
+// POST req - to create a new user that is "signup"
 router.post('/users', async (req, res) => {
   const user =  new User(req.body)  // create a new instance of user using User model from models/user.js
   try{
@@ -29,7 +29,8 @@ router.post('/users/login', async (req, res) => {
   try {
     const user = await User.findByCredentials(req.body.email, req.body.password);
     const token = await user.generateAuthToken()
-    res.send({ user, token })
+
+    res.send({ user: user.getPublicProfile(), token })
   }
   catch(err) {
     res.status(400).send(err)
@@ -62,9 +63,9 @@ router.post('/users/logoutAll', auth, async (req, res) => {
   }
 })
 
-// fetching multiple users --- use find method
+// fetching profile --- use find method
 router.get('/users/me', auth, async (req, res) => {
-  res.send( req.user )
+  res.send( req.user.getPublicProfile() )
 })
 
 // fetching single user --- using unique Id

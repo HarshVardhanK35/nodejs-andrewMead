@@ -46,6 +46,18 @@ const userSchema = new mongoose.Schema(
   }
 )
 
+// method to hide sensitive data
+userSchema.methods.getPublicProfile = function() {
+  const user = this;
+  const userData = user.toObject()
+
+  delete userData.password
+  delete userData.tokens
+
+  return userData
+}
+
+// method to generate authentication token
 userSchema.methods.generateAuthToken = async function() {
   const user = this;
   const token = jwt.sign({ _id: user._id.toString() }, 'thisIsTaskMangerApplication')
