@@ -7,16 +7,13 @@ const router = new express.Router()
 // import User schema
 const User = require('../models/user')
 
-// POST req - to create a new user that is "signup"
+// POST req - to create a new user -> "signup"
 router.post('/users', async (req, res) => {
   const user =  new User(req.body)  // create a new instance of user using User model from models/user.js
   try{
     await user.save();              // save the created user to db and handle the promise
-
     // after saving the user generate a token
     const token = await user.generateAuthToken()
-
-
     res.status(201).send({ user, token });
   }
   catch(err){
@@ -29,8 +26,7 @@ router.post('/users/login', async (req, res) => {
   try {
     const user = await User.findByCredentials(req.body.email, req.body.password);
     const token = await user.generateAuthToken()
-
-    res.send({ user: user.getPublicProfile(), token })
+    res.send({ user: user.getPublicProfile(), token })                              // *> need to put token here or else it return error while accessing route -> user/me
   }
   catch(err) {
     res.status(400).send(err)
@@ -41,10 +37,10 @@ router.post('/users/login', async (req, res) => {
 router.post('/users/logout', auth, async (req, res) => {
   try{
     req.user.tokens = req.user.tokens.filter((token) => {
-      return token.token !== req.token
+      return token.token !== req.token                                                // *> used within the filter method to remove the current session's authentication token from the user's tokens array
     })
     await req.user.save()
-    res.send()
+    res.send("Logged out successfully!")
   }
   catch(err){
     res.status(500).send(err)
@@ -56,7 +52,7 @@ router.post('/users/logoutAll', auth, async (req, res) => {
   try{
     req.user.tokens = []
     await req.user.save()
-    res.send()
+    res.send("Logged out from all devices successfully!")
   }
   catch(err){
     res.status(500).send(err)
@@ -69,51 +65,37 @@ router.get('/users/me', auth, async (req, res) => {
 })
 
 // fetching single user --- using unique Id
-router.get('/users/:id', async (req, res) => {
+// router.get('/users/:id', async (req, res) => {
+//   try{
+//     const user = await User.findById(req.params.id)
+//     if(!user){
+//       res.status(404).send("User not found!")
+//     }
+//     res.send(user)
+//   }
+//   catch(err){
+//     res.status(500).send()
+//   }
+// })
 
-  const _id = req.params.id;
-
-  try{
-    const user = await User.findById(_id)
-    if(!user){
-      res.status(404).send("User not found!")
-    }
-    res.send(user)
-  }
-  catch(err){
-    res.status(500).send()
-  }
-})
-
-// updating a single user with Id
-router.patch('/users/:id', async(req, res) => {
-
+// updating a single user with Id >>> this is modified check the docs for the previous version of update router
+router.patch('/users/me', auth, async(req, res) => {
   const reqBodyUpdates = Object.keys(req.body);
   const updatesAllowed = ['name', 'email', 'password', 'age'];
-
-  const isValidOperation = reqBodyUpdates.every((reqBodyUpdate) => {
+  const isValidOperation = reqBodyUpdates.every((reqBodyUpdate) => {        // *> returns true if all elements in the array satisfy the provided testing function.
     return updatesAllowed.includes(reqBodyUpdate)
   })
-
   if(!isValidOperation) {
     res.status(400).send({ error: "Invalid updates!" })
   }
-
-  const _id = req.params.id
-
   try{
-    const user = await User.findById(_id)
+    const user = await User.findById(req.user._id)
     reqBodyUpdates.forEach((update) => {
       user[update] = req.body[update]
     })
     await user.save()
-
     // this is commented because it is bypassing and directly updating in the database
     // const user = await User.findByIdAndUpdate(_id, req.body, { new: true, runValidators: true })
-
-     if(!user){
-      res.status(404).send()
-    }
     res.send(user)
   }
   catch(err){
@@ -121,20 +103,18 @@ router.patch('/users/:id', async(req, res) => {
   }
 })
 
-// delete a user with Id
-router.delete('/users/:id', async(req, res) => {
-  const _id = req.params.id
-    try{
-      const user = await User.findByIdAndDelete(_id)
-
-      if(!user){
-        res.status(404).send("User not found!")
-      }
-      res.send(user)
+// delete a user with Id >>> replace "users/:id" with "users/me"
+router.delete('/users/me', auth, async(req, res) => {
+  try{
+    const user = await User.findByIdAndDelete(req.user._id)
+    if(!user){
+      res.status(404).send()
     }
-    catch(err){
-      res.status(500).send(err)
-    }
+    res.send(req.user)
+  }
+  catch (err) {
+    res.status(500).send(err)
+  }
 })
 
 module.exports = router

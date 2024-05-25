@@ -912,3 +912,99 @@ explanation (toJSON):
 1. BTS res.send({ user: user }) works like JSON.stringify()
   -> the objects gets stringified BTS with res.send({ user: user })
 2. when the "toJSON" is used it gets called whenever an object gets stringified.
+___________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+
+* authenticating User Endpoints
+-------------------------------
+Intro
+------
+1. in this we convert user routes to use authentication
+2. in the application so far we do not need fetching a user by his Id as we are doing it with user profile route
+  -> no need of "user/:id" instead we are using "user/me >>> which is a user profile route"
+
+>>> 1st: we are going to modify the delete route...
+-----------------------------------------------------
+no need of "user/:id" as path
+------------------------------
+router.get('/users/:id', async (req, res) => {
+  const _id = req.params.id;
+  try{
+    const user = await User.findById(_id)
+    if(!user){ res.status(404).send("User not found!") }
+    res.send(user)
+  }
+  catch(err){ res.status(500).send() }
+})
+
+instead we are using... "user/me" as path
+------------------------------------------
+router.get('/users/me', auth, async (req, res) => {
+  res.send( req.user.getPublicProfile() )
+})
+
+steps:
+-------
+snippet:
+---------
+// delete a user with Id >>> replace "users/:id" with "users/me"
+router.delete('/users/me', auth, async(req, res) => {
+  try{
+    const user = await User.findByIdAndDelete(req.user._id)
+    if(!user){
+      res.status(404).send()
+    }
+    res.send(req.user)
+  }
+  catch (err) {
+    res.status(500).send(err)
+  }
+})
+explanation:
+-------------
+1. integrate the auth middleware on delete-route
+  -> as we are using "auth" middleware... we have access to "user" object on request so we can fetch user-details from it... (req.user)
+2. (req.user._id) this can be used inside the route to fetch user with his id and delete him.
+3. (OPTIONAL) as we are using "auth" > a authentication middleware... so we know that user exists and there is no need to use "if" condition
+
+>>> 2nd: we are going to modify the update -> "PATCH" route...
+---------------------------------------------------------------
+challenge:
+-----------
+>>> refactor the update profile route
+1. update URL to users/me
+2. add authentication middleware - "auth" before the route handler "async (req, res, next) => {}"
+3. use the existing user doc instead of fetching via id from param
+4. test it using POSTMAN!
+
+before refactoring:
+------------------
+router.patch('/users/:id', async(req, res) => {
+  const reqBodyUpdates = Object.keys(req.body);
+  const updatesAllowed = ['name', 'email', 'password', 'age'];
+  const isValidOperation = reqBodyUpdates.every((reqBodyUpdate) => {
+    return updatesAllowed.includes(reqBodyUpdate)
+  })
+  if(!isValidOperation) {
+    res.status(400).send({ error: "Invalid updates!" })
+  }
+  const _id = req.params.id
+  try{
+    const user = await User.findById(_id)
+    reqBodyUpdates.forEach((update) => {
+      user[update] = req.body[update]
+    })
+    await user.save()
+    // this is commented because it is bypassing and directly updating in the database
+    // const user = await User.findByIdAndUpdate(_id, req.body, { new: true, runValidators: true })
+     if(!user){
+      res.status(404).send()
+    }
+    res.send(user)
+  }
+  catch(err){
+    res.status(400).send(err)
+  }
+})
+
+after refactoring:
+-------------------
