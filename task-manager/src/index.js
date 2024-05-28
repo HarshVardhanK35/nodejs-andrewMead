@@ -27,4 +27,25 @@ app.listen(port, () => {
   console.log(`Server up and listening on https://localhost:${port}`)
 })
 
+// get user details using task-id
 
+// const Task = require('./models/task')
+// const getUserFromTask = async () => {
+//   try {
+//     const task = await Task.findById('66548e2e3fb959e24dba0a1d');      // task-id was provided
+//     await task.populate('createdBy')
+//     console.log(task.createdBy);
+//   } catch (error) {
+//     console.error(error);
+//   }
+// }
+// getUserFromTask()
+
+// get tasks created by user using user-id
+// const User = require('./models/user')
+// const getTaskFromUser = async() => {
+//   const user = await User.findById('66548da3f7d0ba282cb52740')        // user-id was provided
+//   await user.populate('tasks')
+//   console.log(user.tasks)
+// }
+// getTaskFromUser()

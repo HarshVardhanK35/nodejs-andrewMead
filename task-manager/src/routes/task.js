@@ -1,16 +1,22 @@
 const express = require('express');
 const router = new express.Router()
 
+// auth-middleware
+const auth = require("../middleware/auth")
+
 // import Task schema
 const Task = require('../models/task')
 
 // create new task
-router.post('/tasks', async (req, res) => {
-  const task = new Task(req.body);
-
+router.post('/tasks', auth, async (req, res) => {
+  // const task = new Task(req.body);      // before modification
+  const task = new Task ({
+    ...req.body,
+    createdBy: req.user._id               // the person we just authenticated
+  })                                      // after modification
   try{
     task.save()
-    res.status(201).send("Task created")
+    res.status(201).send(task)
   }
   catch(err) {
     res.status(400).send(err)

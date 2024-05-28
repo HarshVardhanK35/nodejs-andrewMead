@@ -1,4 +1,4 @@
-* Section Intro *
+* Section Intro  *
 -----------------
 1. focus on locking all the data.
 
@@ -57,7 +57,7 @@ ________________________________________________________________________________
 
 * securely storing passwords in database: part-2 *
 --------------------------------------------------
-Intro:
+Intro :
 -----
 1. in this we are going to integrate bcrypt to hash the passwords inside the Task Manager API.
 
@@ -211,7 +211,7 @@ ________________________________________________________________________________
 
 * JSON web tokens
 -----------------
-intro:
+Intro :
 ------
 1. every express route created will either be public or placed behind authentication (private).
 2. every route instead of (sign-up and login) need to be authenticated.
@@ -297,7 +297,7 @@ ________________________________________________________________________________
 
 * Generating Authentication Tokens
 ----------------------------------
-Intro:
+Intro :
 ------
 1. the routes that are responsible for creating new user and logging in existing user send us back the JWT auth tokens
 
@@ -397,7 +397,7 @@ ________________________________________________________________________________
 
 2. use "express middleware" to get all this done.
 
-Intro:
+Intro :
 ------
 What is middleware --- CHATGPT?
 -------------------
@@ -480,7 +480,7 @@ ________________________________________________________________________________
 
 * Accepting Authentication Tokens
 ---------------------------------
-intro
+Intro
 -----
 1. so here we gonna learn how to use middleware functions to authenticate a user using the token associated with him.
 
@@ -666,7 +666,7 @@ ________________________________________________________________________________
 
 * Advanced POSTMAN
 -------------------
-Intro:
+Intro :
 ------
 -> in this, we gonna talk about Postman environments and postman environment variables
 
@@ -774,7 +774,7 @@ ________________________________________________________________________________
 
 * Logging Out
 ---------------
-Intro:
+Intro :
 -------
 1. in this we create new route to help user to log out of the application also how to remove the token after log out
 2. the main thing is here that when we logged in different devices and log out from a device and I do not want to log out of everything
@@ -833,7 +833,7 @@ ________________________________________________________________________________
 
 * Hiding Private Data
 ----------------------
-Intro:
+Intro :
 -------
 1. how to secure the user profile data we are sending from the server
 2. the user-data fields that need be hided are... passwords and tokens
@@ -966,6 +966,7 @@ explanation:
 2. (req.user._id) this can be used inside the route to fetch user with his id and delete him.
 3. (OPTIONAL) as we are using "auth" > a authentication middleware... so we know that user exists and there is no need to use "if" condition
 
+
 >>> 2nd: we are going to modify the update -> "PATCH" route...
 ---------------------------------------------------------------
 challenge:
@@ -1008,3 +1009,186 @@ router.patch('/users/:id', async(req, res) => {
 
 after refactoring:
 -------------------
+// updating a single user with Id >>> this is modified check the docs for the previous version of update router
+router.patch('/users/me', auth, async(req, res) => {
+  const reqBodyUpdates = Object.keys(req.body);
+  const updatesAllowed = ['name', 'email', 'password', 'age'];
+  const isValidOperation = reqBodyUpdates.every((reqBodyUpdate) => {        // *> returns true if all elements in the array satisfy the provided testing function.
+    return updatesAllowed.includes(reqBodyUpdate)
+  })
+  if(!isValidOperation) {
+    res.status(400).send({ error: "Invalid updates!" })
+  }
+  try{
+    const user = await User.findById(req.user._id)
+    reqBodyUpdates.forEach((update) => {
+      user[update] = req.body[update]
+    })
+    await user.save()
+    // this is commented because it is bypassing and directly updating in the database
+    // const user = await User.findByIdAndUpdate(_id, req.body, { new: true, runValidators: true })
+    res.send(user)
+  }
+  catch(err){
+    res.status(400).send(err)
+  }
+})
+___________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+
+* The User/Task Relationship
+------------------------------
+Intro:
+------
+1. user-task relationship: after this session... we learn to code so that users can only access and manages their tasks what they have created
+2. we need only index, user-model, task-router and task-model to work for this functionality.
+3. there are two approaches to make this possible...
+  1. user can store the ID of tasks they have created.
+  2. tasks model can store the ID of the user who created the tasks
+
+-> we go with 2nd way of approach:
+steps - basic way:
+-----------------
+1. insert a new field inside Task-model >>> owner or author or belongsTo or "createdBy"
+  -> this takes "type" that is "mongoose.Schema.Types.ObjectId"
+  -> and this field is required so it as "true"
+Note:
+-> this field inside task model, the "createdBy" field is defined as a reference to the User model
+
+-> delete the old data-base and create a new user
+
+2. make some changes in task-router inside the route to create new tasks
+  2.1 import "auth" middleware inside task-route and add it into the create task route
+  2.2 in the task-route replace the line "const task = new Task(req.body)" with
+    -> "const task = new Task ({ ...req.body, createdBy: req.user._id })"
+Note:
+------
+-> this is the basic code to relate two models in a database
+-> the advanced way to do this operation is...
+
+steps - advanced way:
+----------------------
+intro - rough work:
+--------------------
+-> below operation is done inside "index" file
+-> import Task-model and fetch a task by it's id using id of the task and grab the "task-Id" field inside the task-model
+
+const Task = require('./models/task')
+const getUserFromTask = async() => {
+  const task = await Task.findById("taskId from the task that was created!")
+  clg(task.createdBy)
+}
+res:
+-----
+-> as a result we get like this "new ObjectId('66548da3f7d0ba282cb52740')"
+-> but we want only the plain id "66548da3f7d0ba282cb52740"
+
+>>> so change the code to "clg(task.createdBy.toString())"
+
+problem:
+--------
+-> as we are getting only the user id who created the task what if we want more details of the user
+(ex: what if we want user name associated with the Id we got just now)
+
+solutions:
+-----------
+1. manual process (_NOT_RECOMMENDED_):
+--------------------------------------
+-> the id we retrieved will help to fetch more user-details
+  -> we user mongoose methods like "findById()" after importing "User-model" (just like... how we did to fetch task-details)
+-> this is a long and manual process
+
+2. another way:
+----------------
+-> WITH MONGOOSE THERE IS ACTUALLY A WAY TO SET RELATIONS BETWEEN TWO MODELS...
+---------------------------------------------------------------------------------
+-> so set up another field inside the "createdBy" in the task model
+-> which is "ref" -> reference >>> this links to another model we named it as "User"
+  -> const User = mongoose.model('User', userSchema);
+                                    |
+                              user-model name
+updated task-model:
+-------------------
+createdBy: {
+  type: mongoose.Schema.Types.ObjectId,
+  required: true,
+  ref: "User"
+}
+-> this property creates relationship between two models "User" and "Task"
+
+GET USER-DETAILS USING TASK-ID FROM THE TASK WHICH WE HAVE CREATED:
+--------------------------------------------------------------------
+-> so we can easily fetch the user details from the task-model with a method that is "populate" which returns a promise and we use await on that
+  -> "await task.populate('createdBy').execPopulate()"
+    -> using this we get entire user-object-details attached with task that was created by that user
+snippet:
+--------
+const Task = require('./models/task')
+const getUserFromTask = async() => {
+  const task = await Task.findById("taskId from the task that was created!")
+  await task.populate('createdBy').execPopulate()
+  clg(task.createdBy)
+}
+ex:
+----
+const Task = require('./models/task')
+const getUserFromTask = async () => {
+  try {
+    const task = await Task.findById('66548e2e3fb959e24dba0a1d');      // task-id was provided
+    await task.populate('createdBy')
+    console.log(task.createdBy);
+  } catch (error) {
+    console.error(error);
+  }
+}
+getUserFromTask()
+
+Note:
+------
+-> till now we got user-details form task-id but now we do the reverse process
+
+GET TASK-DETAILS USING USER-ID:
+--------------------------------
+-> we use the id that we have got from the task that user created
+-> to fetch tasks we do not use "user.tasks"... as we have no tasks array like tokens array on user object
+  -> so we set up a virtual property on user-schema which is not the actual data that will be stored inside database
+    "userSchema.virtual('tasks', {
+      ref: 'Task',                            // which model we are referencing to User-model
+      localField: '',                         // where the local-data is stored and as we have "createdBy" which is an id on the task-model
+      foreignField: ''                        // name of the field... on the reference model that we are linking here
+    })"
+
+snippet:
+---------
+userSchema.virtual('tasks', {
+  ref: 'Task',
+  localField: '_id',
+  foreignField: 'createdBy'
+})
+
+-> so we use "populate" here to fetch the details exactly we use the way what we used before
+snippet:
+---------
+const User = require('./models/task')
+const getTasksFromUser = async() => {
+  const user = await User.findById('user-id that was stored inside "createdBy" field inside task-model');
+  await user.populate('tasks').execPopulate()
+  clg(user.tasks)
+}
+ex:
+----
+// to get tasks from user-id
+-----------------------------
+const User = require('./models/user')
+const getTaskFromUser = async() => {
+  const user = await User.findById('66548da3f7d0ba282cb52740')        // user-id was provided
+  await user.populate('tasks')
+  console.log(user.tasks)
+}
+getTaskFromUser()
+
+conclusion:
+------------
+-> this is quite complex and confusing topic in mongoose
+-> so in further sessions we focus on this topic more
+-> do not use execPopulate() if there was an error...
+  -> "TypeError: task.populate(...).execPopulate is not a function"

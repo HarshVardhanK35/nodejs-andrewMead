@@ -46,6 +46,13 @@ const userSchema = new mongoose.Schema(
   }
 )
 
+// virtual field to create tasks
+userSchema.virtual('tasks', {
+  ref: 'Task',
+  localField: '_id',
+  foreignField: 'createdBy'
+})
+
 // method to hide sensitive data
 userSchema.methods.getPublicProfile = function() {
   const user = this;
