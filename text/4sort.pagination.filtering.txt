@@ -1,0 +1,64 @@
+Section --- Sorting, Pagination and Filtering
+___________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+
+Working With Timestamps
+------------------------
+1. add 2 new fields that are "createdAt" and "updatedAt" these are going to store timestamps
+  -> the time when task and user were updated; when user was signed-up and task was created
+2. to enable new data fields we have to customize the schema
+
+steps to customize user-schema
+--------------------------------
+1. mongoose.Schema for user can take two args and one is an object that was already provided
+  -> and the other is Schema-options which is timestamps an object-type
+2. const userSchema = new mongoose.Schema({user-model}, {timestamps: true})
+  -> default timestamps are set to false and we enable them to true
+
+Note
+-----
+-> by this little modification the fields get automatically added to the user created on database
+-> these are useful on the server and the client can also use while rendering content to the browser
+
+challenge:
+-----------
+1. we have written the code that directly takes an object for modelling tasks
+
+-> so create a separate schema and include on to the task-model
+-> set timestamps as an option
+-> create tasks on postman to test the work!
+
+snippet:
+---------
+const mongoose = require("mongoose");
+const taskSchema = new mongoose.Schema({
+    description: {
+      type: String,
+      required: true,
+      trim: true
+    },
+    completed: {
+      type: Boolean,
+      default: false,
+    },
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      ref: "User"
+    }
+},{
+    timestamps: true
+  }
+)
+const Task = mongoose.model('Task', taskSchema)
+module.exports = Task;
+
+conclusion:
+-----------
+1. timestamps: this could be useful for Sorting, Pagination etc., that our application needs
+___________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+
+* Filtering Data *
+--------------------
+intro:
+-------
+1. 

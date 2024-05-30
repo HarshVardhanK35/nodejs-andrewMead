@@ -3,7 +3,7 @@ const validator = require("validator");
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 
-const Task = require('../models/task')
+// const Task = require('../models/task')
 
 const userSchema = new mongoose.Schema(
   {
@@ -44,7 +44,17 @@ const userSchema = new mongoose.Schema(
         }
       }
     },
-    tokens: [{ token: { type: String, required: true } }] // empty objects array: [{}]
+    tokens: [
+      {
+        token: {
+          type: String,
+          required: true
+        }
+      }
+    ] // empty objects array: [{}]
+  },
+  {
+    timestamps: true
   }
 )
 
