@@ -1192,3 +1192,54 @@ conclusion:
 -> so in further sessions we focus on this topic more
 -> do not use execPopulate() if there was an error...
   -> "TypeError: task.populate(...).execPopulate is not a function"
+___________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+
+* Authenticating Task Endpoints
+---------------------------------
+Intro:
+------
+1. in this we learn how to refactor all the routes by adding authentication
+
+GET /task/:id
+--------------
+get task by id created by authenticated user
+---------------------------------------------
+1. authenticating task route by adding auth inside it
+2. find task by it's id:
+-> const task = await Task.findById({ _id, createdBy: req.user._id })
+  -> change the code inside task-route
+  -> Use Task.findOne({ _id, createdBy: req.user._id }) to find the task with the given _id that also has a createdBy field matching the authenticated user's ID (req.user._id).
+  -> This ensures that even if a task with the specified _id exists, it will only be returned if it was created by the authenticated user.
+
+
+GET /tasks
+----------
+get all tasks which were created by the user
+----------------------------------------------
+1. add auth to the route to get authenticated
+2. find all the tasks that were created by the user who was logged in (authenticated)
+snippet:
+--------
+-> const tasks = await Task.find({ createdBy: req.user._id })
+
+
+PATCH /task/:id
+----------------
+update a task with it's id
+---------------------------
+1. add auth
+2. find the task created by the user who is authenticated
+snippet:
+---------
+-> const task = await Task.findOne({ _id: req.params.id, createdBy: req.user._id })
+
+
+DELETE /task/:id
+-----------------
+delete a task by it's id:
+-------------------------
+1. add authentication using "auth" middleware
+2. find the task and delete... that task must be created by user who was authenticated
+snippet:
+--------
+-> const task = await Task.findOneAndDelete({ _id: req.params.id, createdBy: req.user._id })
