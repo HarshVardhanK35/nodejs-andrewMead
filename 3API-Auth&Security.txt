@@ -1243,3 +1243,52 @@ delete a task by it's id:
 snippet:
 --------
 -> const task = await Task.findOneAndDelete({ _id: req.params.id, createdBy: req.user._id })
+___________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+
+* Cascade Delete Tasks
+-----------------------
+intro:
+------
+1. here, in this sections we remove the tasks when a user wants to delete their own profile.
+  -> when I delete myself from the DB automatically the tasks created by me also be deleted.
+2. there are 2 approaches...
+
+2.1 => modify the delete-user route... where we delete the user add another line to delete the tasks that were created by authenticated user
+
+// delete a user with Id >>> replace "users/:id" with "users/me"
+router.delete('/users/me', auth, async(req, res) => {
+  try{
+    const user = await User.findByIdAndDelete(req.user._id)
+
+    // delete the tasks when user deletes his profile           //---  new line  ---
+    await Task.deleteMany({ createdBy: req.user._id })          //---  new line  ---
+
+    if(!user){
+      res.status(404).send()
+    }
+    res.send(req.user)
+  }
+  catch (err) {
+    res.status(500).send(err)
+  }
+})
+
+
+2.2 => use middleware... create a new middleware inside "User-model" which deletes user tasks when user deletes himself
+New middleware:
+----------------
+// 1st- import the task model
+const Task = require('../models/task')
+
+// 2nd- delete the tasks when user deletes himself
+userSchema.pre('remove', async function (req, res, next) {
+  const user = this
+  await Task.deleteMany({ createdBy: user._id })
+  next()
+})
+
+___________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+* section-completed
+___________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+
+$ git commit -m "finished modification "

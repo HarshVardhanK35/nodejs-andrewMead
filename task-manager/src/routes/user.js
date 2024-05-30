@@ -4,6 +4,9 @@ const auth = require('../middleware/auth')
 
 const router = new express.Router()
 
+// import task-model.. if user deletes himself delete tasks created by himself
+const Task = require('../models/task')
+
 // import User schema
 const User = require('../models/user')
 
@@ -107,6 +110,8 @@ router.patch('/users/me', auth, async(req, res) => {
 router.delete('/users/me', auth, async(req, res) => {
   try{
     const user = await User.findByIdAndDelete(req.user._id)
+    // delete the tasks when user deletes his profile
+    await Task.deleteMany({ createdBy: req.user._id })
     if(!user){
       res.status(404).send()
     }
