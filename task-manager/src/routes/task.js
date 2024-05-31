@@ -23,21 +23,30 @@ router.post('/tasks', auth, async (req, res) => {
   }
 })
 
-// GET /tasks?completed=false with filtered data
+// GET-tasks: /tasks
+// GET-filtered tasks: /tasks?completed=false with filtered data
+// pagination /tasks?limit=10&skip=0
 router.get('/tasks', auth, async (req, res) => {
-  const query = req.query.completed
-  if (query !== 'true' && query !== 'false' && query === undefined) {
+  const query = req.query.completed;
+  if (query !== 'true' && query !== 'false' && query !== undefined) {
     return res.status(400).send("Bad Request: 'completed' query parameter must be 'true' or 'false'");
   }
   const match = {};
-  if (query === 'true' || 'false') {
+  const limit = parseInt(req.query.limit) || 5;
+  const skip = parseInt(req.query.skip) || 0;
+  if (query !== undefined) {
     match.completed = (query === 'true') ? true : false
   }
   try {
-    const tasks = await Task.find(query ? { ...match, createdBy: req.user._id } : { createdBy: req.user._id });
+    const tasks = await Task.find(
+      query ?
+      { ...match, createdBy: req.user._id } : { createdBy: req.user._id }
+    )
+    .limit(limit)
+    .skip(skip)
     res.send(tasks);
   } catch (err) {
-    res.status(404).send("Tasks not found!");
+    res.status(500).send("Internal Server Error");
   }
 });
 
