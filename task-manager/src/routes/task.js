@@ -23,16 +23,23 @@ router.post('/tasks', auth, async (req, res) => {
   }
 })
 
-// get all tasks
+// GET /tasks?completed=false with filtered data
 router.get('/tasks', auth, async (req, res) => {
-  try{
-    const tasks = await Task.find({ createdBy: req.user._id })
-    res.send(tasks)
+  const query = req.query.completed
+  if (query !== 'true' && query !== 'false' && query === undefined) {
+    return res.status(400).send("Bad Request: 'completed' query parameter must be 'true' or 'false'");
   }
-  catch(err){
-    res.status(500).send("Tasks not found!")
+  const match = {};
+  if (query === 'true' || 'false') {
+    match.completed = (query === 'true') ? true : false
   }
-})
+  try {
+    const tasks = await Task.find(query ? { ...match, createdBy: req.user._id } : { createdBy: req.user._id });
+    res.send(tasks);
+  } catch (err) {
+    res.status(404).send("Tasks not found!");
+  }
+});
 
 // get a specific task use it's id
 router.get('/tasks/:id', auth, async (req, res) => {

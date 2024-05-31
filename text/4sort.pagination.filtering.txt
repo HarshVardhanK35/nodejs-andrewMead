@@ -61,4 +61,54 @@ ________________________________________________________________________________
 --------------------
 intro:
 -------
-1. 
+1. for this and next couple of sections we focus on the GET /tasks route cause it is only the route which sends the data in array
+2. to get the necessary data for the user... we use query string as part of URL structure
+  -> URL will be like: {localhost:3000/tasks?completed=true}
+
+3. in the code we are checking for 3 conditions those are
+  -> when "query" is true... returns all the tasks which were completed
+  -> when "query" is false... returns all the tasks which were not completed
+  -> when "query" is not-defined (undefined)... returns all the tasks wether completed or not
+
+4. there is another condition when the query is not equal to "true" and "false" and "undefined"
+  -> then this returns "Bad request"
+
+// GET /tasks?completed=queryString
+-------------------------------------
+router.get('/tasks', auth, async (req, res) => {
+  const query = req.query.completed
+  if (query !== 'true' && query !== 'false' && query === undefined) {
+    return res.status(400).send("Bad Request: 'completed' query parameter must be 'true' or 'false'");
+  }
+  const match = {};
+  if (query === 'true' || 'false') {
+    match.completed = (query === 'true') ? true : false
+  }
+  try {
+    const tasks = await Task.find(query ? { ...match, createdBy: req.user._id } : { createdBy: req.user._id });
+    res.send(tasks);
+  } catch (err) {
+    res.status(404).send("Tasks not found!");
+  }
+});
+
+explanation:
+-------------
+1. as query value will be String-type... need to be converted into boolean:
+.....................
+const match = {};
+if (query === 'true' || 'false') {
+  match.completed = (query === 'true') ? true : false
+}
+-> took an empty object... and checking for query value if it is "true" (type: String) then match.completed = true (type: Boolean)
+
+2. checking that query has provided or not:
+---------------------------------------------
+-> if provided returns according to query value
+-> if not returns every tasks
+...................
+try {
+  const tasks = await Task.find(query ? { ...match, createdBy: req.user._id } : { createdBy: req.user._id });
+  res.send(tasks);
+}
+
