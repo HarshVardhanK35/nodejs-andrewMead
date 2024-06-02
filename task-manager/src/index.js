@@ -1,5 +1,6 @@
 // import express
 const express = require('express');
+const multer = require('multer')
 
 require('./db/mongoose')
 const userRouter = require('./routes/user');
@@ -12,6 +13,22 @@ const port = process.env.PORT || 3000
 // app.use((req, res, next) => {
 //   res.status(503).send("site is under maintenance... check back soon!")
 // })
+
+const upload = multer({
+  dest: 'filesFromServer',
+  limits: {
+    fileSize: 100000000000 // given 1 million.. does not take files more than 1MB
+  },
+  fileFilter(req, file, cb){
+    if(!file.originalname.endsWith('.pdf')){
+      cb(new Error("Upload files only of PDF type!"))
+    }
+    cb(undefined, true)
+  }
+})
+app.post('/upload', upload.single('upload'), (req, res) => {
+  res.send()
+})
 
 // middleware - to parse the incoming JSON
 app.use(express.json())
@@ -27,25 +44,3 @@ app.listen(port, () => {
   console.log(`Server up and listening on https://localhost:${port}`)
 })
 
-// get user details using task-id
-
-// const Task = require('./models/task')
-// const getUserFromTask = async () => {
-//   try {
-//     const task = await Task.findById('66548e2e3fb959e24dba0a1d');      // task-id was provided
-//     await task.populate('createdBy')
-//     console.log(task.createdBy);
-//   } catch (error) {
-//     console.error(error);
-//   }
-// }
-// getUserFromTask()
-
-// get tasks created by user using user-id
-// const User = require('./models/user')
-// const getTaskFromUser = async() => {
-//   const user = await User.findById('66548da3f7d0ba282cb52740')        // user-id was provided
-//   await user.populate('tasks')
-//   console.log(user.tasks)
-// }
-// getTaskFromUser()

@@ -1,5 +1,6 @@
 * File Uploads (Task App)*
 ---------------------------
+---------------------------
 ___________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
 
 * Adding Support for File Uploads *
@@ -68,3 +69,100 @@ challenge:
 2. setup an avatar directory using multer to store uploaded file from postman
 3. set a name "avatar" inside multer middleware
 4. send a "200" response back on success >>> test your work.
+___________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+
+* Validating File Uploads *
+----------------------------
+intro:
+-------
+1. restrict file by it's type and size
+2. two things 2 validate: file size and file type
+
+-> while configuration only we have to set the rules for uploading
+here... const upload = multer ({ dest: 'images' }) in here
+
+FileSize:
+---------
+-> here we have to set up another property that is "limits" which is an object
+const upload = multer ({
+  dest: 'images',
+  limits: {}
+})
+-> limits takes in different types "fileSize" takes in number in bytes (if megabytes then it is "millions")
+-> if file size exceeds more than the range of given limit then it throws a multerError
+
+FileType:
+---------
+fileFilter(req, file, cb) {
+  cb(new Error ('Please provide PDF file only'))
+}
+-> another function inside multer configure is "fileFilter" that accepts only some files with specified extensions
+
+-> takes in 3 args
+1. req >>>    express request that we made
+----------
+
+2. file >>>   takes the file type that need to be accepted
+-----------
+-> all the file details are here inside file that is 2nd arg
+-> there are different properties accessible on 2nd arg... we use "originalname" to get the name of the file
+
+
+3. cb >>>     callback... used to tell multer that we are done with filtering the file
+---------
+//... i.  cb(new Error('File must be of PDF type!')) ... // --- // error callback
+-> i.   if any error occurred we simply pass that to callback function
+
+//... ii. cb(undefined, true) ...// --- // this is passed on if there is no error
+-> ii.  undefined... no error and take the file into server and proceed
+
+snippet to check the "pdf" type:
+---------------------------------
+const upload = multer({
+  dest: 'filesFromServer',
+  limits: {
+    fileSize: 100000000000 // given 1 million.. does not take files more than 1MB
+  },
+  fileFilter(req, file, cb){
+    if(!file.originalname.endsWith('.pdf')){
+      cb(new Error("Upload files only of PDF type!"))
+    }
+    cb(undefined, true)
+  }
+})
+app.post('/upload', upload.single('upload'), (req, res) => {
+  res.send()
+})
+
+challenge:
+----------
+1. limit the upload size to 1 MB
+2. condition only "jpg" or "jpeg" or "png" types
+3. test the work!
+  3.1 upload larger than 1 MB File
+  3.2 upload files with extensions other than specified extensions
+
+snippet to check the "jpg" or "jpeg" or "png" type:
+---------------------------------------------------
+// file uploads
+const avatar = multer({
+  dest: 'avatars',
+  limits: {
+    fileSize: 1000000 // accepts files with less than or equal to 1 MB
+  },
+  fileFilter (req, file, cb) {
+    const fileExt = file.filename
+    if (fileExt.endsWith('jpg') || fileExt.endsWith('jpeg') || fileExt.endsWith('png')) {
+      cb(null, true)    // accept the file
+    }
+    cb(new Error("Please upload correct file"))   // rejects the file
+  }
+})
+// router to access file-uploads
+router.post('/users/me/avatar', avatar.single('avatar'), (req, res) => {
+  res.send()
+})
+
+
+//  ---------------------------- REGULAR EXPRESSION ----------------------------
+Note: to practice with regular expressions use the website: "regex101.com"
