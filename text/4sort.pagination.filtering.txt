@@ -139,6 +139,7 @@ Skip:
 
 How to use both limit and skip:
 -------------------------------
+-> this modification is done on Task GET /tasks route
 -> assume that we set 10 as limit of responses for pagination and we set skip as 10
   -> then this returns next 20 that is the response starts from 11 and skips 1st 10 results that is (1 to 10)
 ex-1
@@ -176,5 +177,49 @@ router.get('/tasks', auth, async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
+___________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
 
+* Sorting Data *
+-----------------
+intro:
+------
+1. this modification is done on Task GET /tasks route
+2. sorting types
+  2.1 we use timestamps to know when a task was created or updated.
+  2.2 sort by complete and incomplete
 
+2.1 sorting data in ascending or descending order
+--------------------------------------------------
+-> we use createdAt and updatedAt timestamps with ascending or descending order
+the URL structure:
+------------------
+-> localhost:3000/tasks?sortBy=createdAt_asc (or) localhost:3000/tasks?sortBy=createdAt_desc
+  -> we used (_) to separate "createdAt" and "asc" or "desc"
+
+Hardcoded way:
+---------------
+-> hardcoded way is specifying the asc and desc with 1 and -1 respectively
+-> const tasks = await Task.find({ query }).sort(createdAt: -1)               // descending
+
+using URL:
+----------- the URL is -> localhost:3000/tasks?sortBy=createdAt_asc
+-> we have to write code to use value provided inside URL
+
+-> as we did before with match we repeat the same with sort
+
+const sort = {};
+if (req.query.sortBy) {
+  const urlParts = req.query.sortBy.split('_')
+  sort[urlParts[0]] = urlParts[1] === 'asc' ? 1 : -1
+}
+try {
+  const tasks = await Task.find(
+  req.query.completed ?
+    { ...match, createdBy: req.user._id } : { createdBy: req.user._id }
+  )
+  .limit(limit)
+  .skip(skip)
+  .sort(sort)
+  res.send(tasks);
+}
+catch(err){ res.send(err) }

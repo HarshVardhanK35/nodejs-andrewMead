@@ -26,24 +26,30 @@ router.post('/tasks', auth, async (req, res) => {
 // GET-tasks: /tasks
 // GET-filtered tasks: /tasks?completed=false with filtered data
 // pagination /tasks?limit=10&skip=0
+// sorting data /tasks?createdAt_asc (or) /tasks?createdAt_desc likewise for updatedAt too
 router.get('/tasks', auth, async (req, res) => {
-  const query = req.query.completed;
-  if (query !== 'true' && query !== 'false' && query !== undefined) {
+  if (req.query.completed !== 'true' && req.query.completed !== 'false' && req.query.completed !== undefined) {
     return res.status(400).send("Bad Request: 'completed' query parameter must be 'true' or 'false'");
   }
-  const match = {};
   const limit = parseInt(req.query.limit) || 5;
   const skip = parseInt(req.query.skip) || 0;
-  if (query !== undefined) {
-    match.completed = (query === 'true') ? true : false
+  const match = {};
+  if (req.query.completed !== undefined) {
+    match.completed = (req.query.completed === 'true') ? true : false
+  }
+  const sort = {};
+  if (req.query.sortBy) {
+    const urlParts = req.query.sortBy.split('_')
+    sort[urlParts[0]] = urlParts[1] === 'asc' ? 1 : -1
   }
   try {
     const tasks = await Task.find(
-      query ?
+      req.query.completed ?
       { ...match, createdBy: req.user._id } : { createdBy: req.user._id }
     )
     .limit(limit)
     .skip(skip)
+    .sort(sort)
     res.send(tasks);
   } catch (err) {
     res.status(500).send("Internal Server Error");
