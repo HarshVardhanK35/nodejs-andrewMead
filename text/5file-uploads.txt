@@ -1,0 +1,70 @@
+* File Uploads (Task App)*
+---------------------------
+___________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+
+* Adding Support for File Uploads *
+-------------------------------------
+1. how we add support for file uploads for an express application?
+-----
+-> we are using "multer" the NPM library which manages the file uploads for an express application
+-> so far we have sent JSON data from client to server as request body and server has parsed that data into JS object
+
+1. installation-multer
+-----
+-> install "multer" in task-manager application
+  -> cd task-manager >>> "npm i multer"
+
+2. how we could add files to an express application >> we use index.js for simple upload example using multer
+-----
+const multer = require('multer')
+-> load in multer >>> import the module
+
+const upload = multer ({
+  dest: 'images'                        // dest >>> destination which is for destination folder
+})
+-> configure multer >>>   which type of data we want to send to the sever either it's a pdf or jpg or docx or docx
+...here we also set a folder-name for destination where we want to save the file we upload from POSTMAN
+
+app.post('/upload', upload.single('upload'), (req, res) => {
+  res.send()
+})
+-> here we gonna set a "POST" req to upload the files into the server
+-> takes in
+"path" ... 1
+"return value form middleware-function" ... 2     >>> return value form middleware function of multer library that takes a single argument
+"req handler" ... 3
+
+NOTE:
+-----
+-> for this moment we use POSTMAN to upload files after that we learn how to upload files from a browser
+
+about middleware function of multer
+-----
+-> as from the above example... we configured multer using "upload" so we use "single" method on it.
+-> this single takes in a single argument a string type we use "upload"
+
+Note:
+-----
+-> when we send a JSON as req body we use "Body" tab under the url-box -> "raw" select "JSON" -> and then we provide JSON data below
+-> but now we have to send files to the server so we use "form-data" under the "Body" tab
+
+example of real-time file uploading (TESTING)
+-----
+-> to upload a file use any text or images from your desktops
+-> open "POSTMAN" >>> create a new "POST" HTTP request >>> url: {localhost:3000/upload}
+-> hop on to form-data under body tab and there will be key-value pairs
+  -> the key value must be same as the argument that we had provided inside "upload.single()" middleware function
+-> key is "upload" and data must be file type select from the dropdown menu side to the key box
+-> value while change and it asks us to select the file from our machine
+
+check this:
+-----
+-> at last a folder on your "TESTING" directory will be created with name "images" (provided inside dest in configuration of multer)
+-> there will be a file added here inside images directory and it is of type- binary data (VS code can not open it until we specify the extension that must match the file we uploaded before)
+
+challenge:
+-----
+1. inside the working directory that is task-manager/ user-route... set an endpoint: users/me/avatar to upload an avatar using POSTMAN
+2. setup an avatar directory using multer to store uploaded file from postman
+3. set a name "avatar" inside multer middleware
+4. send a "200" response back on success >>> test your work.
