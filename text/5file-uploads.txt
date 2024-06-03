@@ -166,3 +166,109 @@ router.post('/users/me/avatar', avatar.single('avatar'), (req, res) => {
 
 //  ---------------------------- REGULAR EXPRESSION ----------------------------
 Note: to practice with regular expressions use the website: "regex101.com"
+___________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+
+* Handling Express Errors *
+----------------------------
+intro:
+-------
+-> all this is about not to send a full clumsy HTML response when an error occurred...
+ -> updating the code with just a function which sends JSON response with error object (this error object has error message)... with status code of 400
+-> at the end of the request handler in post request we pass another function which handles Error
+
+// using Multer to upload files to server
+const upload = multer({
+ dest: 'filesFromServer',
+ limits: {
+  fileSize: 100000000000 // given 1 million.. does not take files more than 1MB
+ },
+ fileFilter(req, file, cb){
+  if(!file.originalname.endsWith('.pdf')){
+   cb(new Error("Upload files only of PDF type!"))
+  }
+  cb(undefined, true)
+ }
+})
+
+// POST request to send files to server
+app.post('/upload', upload.single('upload'), (req, res) => {
+ res.send()
+}, (error, req, res, next) => {
+ res.status(400).send({ error: error.message })
+})
+
+explanation:
+------------
+1. after request handler we provide another function that handles error... if any
+2. it must be provided with all 4 arguments that are: (error, req, res, next)
+___________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+
+* Handling Express Errors *
+----------------------------
+intro:
+-----
+
+1st... providing authentication to avatars request:
+------
+-> adding auth... accepting profile pics... request handler and error handler inside post - route with path: 'user/me/avatar'
+
+2nd... where exactly we store the profile picture / avatar:
+------
+-> instead of storing those avatars on present working directory or file system
+ -> we add a new field on user-model to store the image as binary data
+-> to process this we add a new field on to user-model that is...
+ -> avatar: { type: Buffer } (Buffer with capital "B")
+
+Note:
+-----
+-> no need of validation as multer taken care of it and it is an optional field so no need of "required: true" on that field.
+
+2.1 how can we access the file that we sent inside route handler of post-route (/users/me/avatar)
+------
+-> the route handler (req, res) => {} does not get access to the file that we had uploaded
+ -> cause we have used multer in between so it processes the image and saves to the directory we have provided (dest: "uploads")
+
+snippet:
+---------
+const avatar = multer({
+ dest: 'avatars', // this saves the data instead of sending it to request handler
+ limits: {
+  fileSize: 1000000
+ }
+})
+
+-> so remove the "dest: < directory-path-to-save-uploads >" line... now multer is no longer save the uploads
+-> the file uploads are accessible through the request body object
+ -> "req.file.buffer" >>> contains a buffer of all binary data
+-> save uploads to user-model: without saving it to the file-system we save it to the user model
+ -> "req.user.avatar = req.file.buffer"
+ -> at last save the user which returns a promise so use await on it
+ -> await req.user.save()
+
+
+problem!
+realized afterwards that it is not a problem so the below one is OPTIONAL
+---------
+-> but multer does not store the file as buffer type into the user-model... even the code written accepts the file uploads
+-> so ensure that storage option with multer was configured correctly
+
+snippet:
+--------
+const multer = require("multer")
+const storage = multer.memoryStorage();
+const avatar = multer({
+ storage: storage,
+ limits: {}... remaining code
+})
+
+3rd... how to render (using HTML templates) the image which was Uploaded to server that has buffer data
+------
+-> use image tag <img='data:image/jpg;base64, {the copied buffer-data}'>
+-> to view the preview of the image uploaded
+
+challenge:
+----------
+1. setup DELETE route >>> /users/me/avatar
+2. add authentication
+3. set the field to undefined and save the user and set the status to 200
+4. test the work!

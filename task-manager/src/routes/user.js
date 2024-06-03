@@ -1,11 +1,21 @@
 const express = require('express');
+
+// import multer
 const multer = require('multer')
 
+// OPTIONAL
+// >>> this below line tells multer to store uploaded files into memory as Buffer objects
+// const storage = multer.memoryStorage()
+
+// import auth middleware
 const auth = require('../middleware/auth')
 
+// mini-app >>> const router = new express.Router()
+// the Express framework which creates a new router object >>> This router object allows you to define modular route handlers
+// modular route handlers >>> Modular route handlers are a way to organize the routes of an application into separate, self-contained modules... for managing and maintaining a clean code
 const router = new express.Router()
 
-// import task-model.. if user deletes himself delete tasks created by himself
+// import task-model.. for deleting user tasks created by him (if user deletes his profile... delete his tasks too)
 const Task = require('../models/task')
 
 // import User schema
@@ -68,7 +78,7 @@ router.get('/users/me', auth, async (req, res) => {
   res.send( req.user.getPublicProfile() )
 })
 
-// fetching single user --- using unique Id
+// fetching single user --- using unique Id >>> as this is not needed we have user-profile (/users/me) --- route
 // router.get('/users/:id', async (req, res) => {
 //   try{
 //     const user = await User.findById(req.params.id)
@@ -123,23 +133,44 @@ router.delete('/users/me', auth, async(req, res) => {
   }
 })
 
-// file uploads
+// file uploads with multer
 const avatar = multer({
-  dest: 'avatars',
+  // instead of saving uploads to local file system > comment the below line
+  // dest: 'avatars',
   limits: {
-    fileSize: 1000000 // accepts files with less than or equal to 1 MB
+    fileSize: 250 * 1024                                        // accepts files with less than 250 KB
   },
   fileFilter (req, file, cb) {
-    const fileExt = file.filename
-    if (fileExt.endsWith('jpg') || fileExt.endsWith('jpeg') || fileExt.endsWith('png')) {
-      cb(null, true)    // accept the file
+    const fileExt = file.originalname.toLocaleLowerCase()
+    if (fileExt.endsWith('.jpg') || fileExt.endsWith('.jpeg') || fileExt.endsWith('.png')) {
+      return cb(null, true)                                          // accept the file
     }
-    cb(new Error("Please upload correct file"))   // rejects the file
+    return cb(new Error("File size must be less than 2 MB!"))        // rejects the file
   }
 })
-// router to access file-uploads
-router.post('/users/me/avatar', avatar.single('avatar'), (req, res) => {
-  res.send()
+
+// router to access file-uploads >>> route to upload avatar for users
+router.post('/users/me/avatar', auth, avatar.single('avatar'), async (req, res) => {
+  req.user.avatar = req.file.buffer                                 // we save the buffer data on user avatar of user-model (added extra field in user-modal that is... { avatar: Buffer }
+  await req.user.save()                                             // save the user to DB... so use async-await as saving user returns promise
+  res.send(req.user)
+}, (error, req, res, next) => {
+  res.status(400).send({ error: error.message })
+})
+
+// route to delete avatar with user-avatar
+router.delete('/users/me/avatar', auth, async (req, res) => {
+  try{
+    if (!req.user.avatar) {
+      return res.status(404).send({ error: "Avatar not found!" });
+    }
+    req.user.avatar = undefined
+    await req.user.save()
+    res.send({ message: "User avatar deleted successfully!" })
+  }
+  catch(err) {
+    res.status(500).send({ error: "Internal Server Error" });
+  }
 })
 
 module.exports = router

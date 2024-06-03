@@ -3,10 +3,12 @@ const express = require('express');
 const multer = require('multer')
 
 require('./db/mongoose')
+
 const userRouter = require('./routes/user');
 const taskRouter = require('./routes/task');
 
 const app = express()
+
 const port = process.env.PORT || 3000
 
 // middleware functions --- to send a response that "site is under maintenance"
@@ -14,6 +16,7 @@ const port = process.env.PORT || 3000
 //   res.status(503).send("site is under maintenance... check back soon!")
 // })
 
+// TESTING: using multer to upload files to server
 const upload = multer({
   dest: 'filesFromServer',
   limits: {
@@ -28,6 +31,8 @@ const upload = multer({
 })
 app.post('/upload', upload.single('upload'), (req, res) => {
   res.send()
+}, (error, req, res, next) => {
+  res.status(400).send({ error: error.message })
 })
 
 // middleware - to parse the incoming JSON
