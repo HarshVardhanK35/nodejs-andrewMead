@@ -29,6 +29,7 @@ const upload = multer({
     cb(undefined, true)
   }
 })
+
 app.post('/upload', upload.single('upload'), (req, res) => {
   res.send()
 }, (error, req, res, next) => {

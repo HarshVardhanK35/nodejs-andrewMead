@@ -126,7 +126,7 @@ router.delete('/users/me', auth, async(req, res) => {
     if(!user){
       res.status(404).send()
     }
-    res.send(req.user)
+    res.send("User deleted successfully!")
   }
   catch (err) {
     res.status(500).send(err)
@@ -152,8 +152,13 @@ const avatar = multer({
 // router to access file-uploads >>> route to upload avatar for users
 router.post('/users/me/avatar', auth, avatar.single('avatar'), async (req, res) => {
   req.user.avatar = req.file.buffer                                 // we save the buffer data on user avatar of user-model (added extra field in user-modal that is... { avatar: Buffer }
-  await req.user.save()                                             // save the user to DB... so use async-await as saving user returns promise
-  res.send(req.user)
+  req.user.avatarMimeType = req.file.mimetype
+
+  await req.user.save()
+
+  console.log(req.file.buffer.length);
+  res.send("successfully uploaded profile avatar")
+
 }, (error, req, res, next) => {
   res.status(400).send({ error: error.message })
 })
@@ -165,6 +170,7 @@ router.delete('/users/me/avatar', auth, async (req, res) => {
       return res.status(404).send({ error: "Avatar not found!" });
     }
     req.user.avatar = undefined
+    req.user.avatarMimeType = undefined
     await req.user.save()
     res.send({ message: "User avatar deleted successfully!" })
   }
@@ -172,5 +178,19 @@ router.delete('/users/me/avatar', auth, async (req, res) => {
     res.status(500).send({ error: "Internal Server Error" });
   }
 })
+
+// route to get user-profile avatar
+router.get('/users/:id/avatar', async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user || !user.avatar) {
+      throw new Error("User not found or no avatar present!");
+    }
+    res.set('Content-Type', user.avatarMimeType);
+    res.send(user.avatar); // Send the avatar buffer
+  } catch (err) {
+    res.status(404).send({ error: err.message });
+  }
+});
 
 module.exports = router

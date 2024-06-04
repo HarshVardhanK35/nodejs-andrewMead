@@ -164,8 +164,10 @@ router.post('/users/me/avatar', avatar.single('avatar'), (req, res) => {
 })
 
 
-//  ---------------------------- REGULAR EXPRESSION ----------------------------
-Note: to practice with regular expressions use the website: "regex101.com"
+//  ---------------------------- HELPFUL RESOURCES ----------------------------
+Note:
+1. to practice with regular expressions use the website: "regex101.com"
+2. jsbin --- webpage to practice JS
 ___________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
 
 * Handling Express Errors *
@@ -272,3 +274,73 @@ challenge:
 2. add authentication
 3. set the field to undefined and save the user and set the status to 200
 4. test the work!
+___________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+
+* Serving up Uploaded file with multer *
+-----------------------------------------
+intro:
+-------
+1. so up to now we learnt how to upload an avatar for users
+2. in this we learn how to view that avatar using an express route
+
+snippet:
+--------
+// GET- request to view user-avatar
+router.get('/users/:id/avatar', async (req, res) => {
+ const user = await User.findById(req.params.id)
+ try{
+  if(!user || !user.avatar){
+   throw new Error()
+  }
+  res.set('Content-Type', user.avatarMimeType) // dynamically set the content type
+  res.send(user.avatar)
+ }
+ catch(err){
+  res.status(404).send()
+ }
+})
+
+explanation:
+-------------
+-> we use GET request
+ -> router.get('/users/:id/avatar', (req, res) => {})
+-> we fetch the user 1st with his user-id (_id) provided in the URL
+ -> with User.findByID(req.params.id)
+-> condition to check the user and avatar exits on that user or not with try{} catch(err) {}
+-> if runs well... we send correct data and what type of data we are sending to the client
+ -> which type of data we are returning is done by setting response headers
+ -> res.set('', '')
+  -> response headers takes in key-value pairs that is
+   -> key will be "Content-Type" which content we are sending back and the value will be 'images/jpeg' as we are sending the images
+-> changed to the dynamic Content-Type
+ -> res.set('Content-Type', user.avatarMimeType) // dynamically set the content type
+Note:
+-----
+-> when we are sending a JSON as a response express takes care of it automatically
+-> ex: 'Content-Type', 'application/json'
+
+additional:
+-----------
+avatarMimeType:{
+ type: String
+}
+---
+-> i have set the 'Content-Type' to dynamic type of images uploaded
+-> added a new field to the user-model
+
+req.user.avatarMimeType = req.file.mimetype // store the MIME type of the uploaded image
+---
+-> so while uploading the image to DB... we also setting the type of the image to 'avatarMimeType' in the DB
+-> inside router.post('/users/me/avatar') route
+
+router.delete('/users/me/avatar', auth, async (req, res) => {
+ try{
+  req.user.avatar = undefined;
+  req.user.avatarMimeType = undefined
+  await req.user.save()
+  res.send({ message: "User avatar deleted successfully" })
+ } catch (err) {}
+})
+---
+-> updated the delete route too...
+ -> router.delete('/users/me/avatar')
