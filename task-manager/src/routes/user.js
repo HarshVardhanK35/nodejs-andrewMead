@@ -1,7 +1,10 @@
 const express = require('express');
 
 // import multer
-const multer = require('multer')
+const multer = require('multer');
+
+// import sharp
+const sharp = require('sharp')
 
 // OPTIONAL
 // >>> this below line tells multer to store uploaded files into memory as Buffer objects
@@ -145,13 +148,15 @@ const avatar = multer({
     if (fileExt.endsWith('.jpg') || fileExt.endsWith('.jpeg') || fileExt.endsWith('.png')) {
       return cb(null, true)                                          // accept the file
     }
-    return cb(new Error("File size must be less than 2 MB!"))        // rejects the file
+    return cb(new Error("Invalid file type. Only JPG, JPEG, and PNG files are allowed!"))        // rejects the file
   }
 })
 
 // router to access file-uploads >>> route to upload avatar for users
 router.post('/users/me/avatar', auth, avatar.single('avatar'), async (req, res) => {
-  req.user.avatar = req.file.buffer                                 // we save the buffer data on user avatar of user-model (added extra field in user-modal that is... { avatar: Buffer }
+  const buffer = await sharp(req.file.buffer).resize({ width: 150, height: 150 }).png().toBuffer()
+  req.user.avatar = buffer                                 // we save the buffer data on user avatar of user-model (added extra field in user-modal that is... { avatar: Buffer }
+
   req.user.avatarMimeType = req.file.mimetype
 
   await req.user.save()
@@ -162,6 +167,20 @@ router.post('/users/me/avatar', auth, avatar.single('avatar'), async (req, res) 
 }, (error, req, res, next) => {
   res.status(400).send({ error: error.message })
 })
+
+// route to get user-profile avatar
+router.get('/users/:id/avatar', async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user || !user.avatar) {
+      throw new Error("User not found or no avatar present!");
+    }
+    res.set('Content-Type', 'image/png');
+    res.send(user.avatar); // Send the avatar buffer
+  } catch (err) {
+    res.status(404).send({ error: err.message });
+  }
+});
 
 // route to delete avatar with user-avatar
 router.delete('/users/me/avatar', auth, async (req, res) => {
@@ -179,18 +198,6 @@ router.delete('/users/me/avatar', auth, async (req, res) => {
   }
 })
 
-// route to get user-profile avatar
-router.get('/users/:id/avatar', async (req, res) => {
-  try {
-    const user = await User.findById(req.params.id);
-    if (!user || !user.avatar) {
-      throw new Error("User not found or no avatar present!");
-    }
-    res.set('Content-Type', user.avatarMimeType);
-    res.send(user.avatar); // Send the avatar buffer
-  } catch (err) {
-    res.status(404).send({ error: err.message });
-  }
-});
+
 
 module.exports = router

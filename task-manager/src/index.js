@@ -1,6 +1,5 @@
 // import express
 const express = require('express');
-const multer = require('multer')
 
 require('./db/mongoose')
 
@@ -15,26 +14,6 @@ const port = process.env.PORT || 3000
 // app.use((req, res, next) => {
 //   res.status(503).send("site is under maintenance... check back soon!")
 // })
-
-// TESTING: using multer to upload files to server
-const upload = multer({
-  dest: 'filesFromServer',
-  limits: {
-    fileSize: 100000000000 // given 1 million.. does not take files more than 1MB
-  },
-  fileFilter(req, file, cb){
-    if(!file.originalname.endsWith('.pdf')){
-      cb(new Error("Upload files only of PDF type!"))
-    }
-    cb(undefined, true)
-  }
-})
-
-app.post('/upload', upload.single('upload'), (req, res) => {
-  res.send()
-}, (error, req, res, next) => {
-  res.status(400).send({ error: error.message })
-})
 
 // middleware - to parse the incoming JSON
 app.use(express.json())

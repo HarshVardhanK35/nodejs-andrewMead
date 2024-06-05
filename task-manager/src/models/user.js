@@ -78,6 +78,8 @@ userSchema.methods.getPublicProfile = function() {
 
   delete userData.password
   delete userData.tokens
+  delete userData.avatar
+  delete userData.avatarMimeType
 
   return userData
 }

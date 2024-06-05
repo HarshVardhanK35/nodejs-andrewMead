@@ -344,3 +344,58 @@ router.delete('/users/me/avatar', auth, async (req, res) => {
 ---
 -> updated the delete route too...
  -> router.delete('/users/me/avatar')
+___________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+
+* Auto-Cropping and Image Formatting *
+--------------------------------------
+intro:
+-------
+1. we use NPM module "sharp" to format the images before we upload them to server
+2. with this module:
+  -> we reduce images to specified size
+  -> with the help of this... we can store our images with a common format
+  (if someone provides jpeg or jpg we convert them into png with this module)
+3. install sharp and load / import into the working file
+  -> npm i sharp >>> const sharp = require('sharp')
+Note:
+-----
+-> sharp uses lot of libraries behind the scene to work the process we instructed it to
+
+snippet:
+---------
+Updated POST user-profile avatar route:
+---------------------------------------
+// router to access file-uploads >>> route to upload avatar for users
+router.post('/users/me/avatar', auth, avatar.single('avatar'), async (req, res) => {
+
+  const buffer = await sharp(req.file.buffer).resize({ width: 150, height: 150 }).png().toBuffer()        // modified-line
+
+  req.user.avatar = buffer                                 // we save the buffer data on user avatar of user-model (added extra field in user-modal that is... { avatar: Buffer }
+  req.user.avatarMimeType = req.file.mimetype
+  await req.user.save()
+  console.log(req.file.buffer.length);
+  res.send("successfully uploaded profile avatar")
+}, (error, req, res, next) => {
+  res.status(400).send({ error: error.message })
+})
+
+-> we have to use async-await on sharp methods as they returns promises
+-> we are going to work on the user-route directory and the route (/users/me/avatar) which is used to upload avatar into the DB
+-> as now we are working on the server side... there is no option for users to use plugins/GUI to crop images that could only be possible on client-side
+  -> so we are using .resize()... this takes in an object consists of width and height properties >>> { width: 250, height: 250 }
+-> we use .png() a method to convert the provided images to a common png format...
+
+> > > const buffer = await sharp(req.file.buffer).resize({ width: 150, height: 150 }).png()
+------
+-> the above code returns an intermediate representation of the image processing pipeline in the form of a Sharp object.
+-> so we use .toBuffer() to change it into buffer data
+-> from initially we have been storing image data as buffer type inside the database
+
+What is Buffer?
+----------------
+-> A buffer in Node.js is a temporary storage area for binary data.
+
+Due to these modifications updates in other routes?
+-----------------------------------------------------
+-> res.set('Content-Type', 'image/png');
+-> update this line inside... get user-profile avatar... router.get('/users/:id/avatar')
