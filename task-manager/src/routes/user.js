@@ -1,7 +1,8 @@
 const express = require('express');
+const nodemailer = require('nodemailer')
 
 // import multer
-const multer = require('multer');
+const multer = require('multer')
 
 // import sharp
 const sharp = require('sharp')
@@ -22,13 +23,31 @@ const router = new express.Router()
 const Task = require('../models/task')
 
 // import User schema
-const User = require('../models/user')
+const User = require('../models/user');
+
+// import sendWelcomeMail and sendCancellationEmail function to send Emails
+const { sendWelcomeMail, sendCancellationEmail } = require('../emails/account')
+
+// Create a transporter for sending Emails using your Gmail account
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false,
+  auth: {
+    user: process.env.USER_EMAIL,
+    pass: process.env.GMAIL_APP_PASS, // You might need to generate an app password
+  },
+});
 
 // POST req - to create a new user -> "signup"
 router.post('/users', async (req, res) => {
   const user =  new User(req.body)  // create a new instance of user using User model from models/user.js
+
   try{
     await user.save();              // save the created user to db and handle the promise
+    sendWelcomeMail(transporter, user.email, user.name)
+
     // after saving the user generate a token
     const token = await user.generateAuthToken()
     res.status(201).send({ user, token });
@@ -124,12 +143,17 @@ router.patch('/users/me', auth, async(req, res) => {
 router.delete('/users/me', auth, async(req, res) => {
   try{
     const user = await User.findByIdAndDelete(req.user._id)
+
     // delete the tasks when user deletes his profile
     await Task.deleteMany({ createdBy: req.user._id })
+
     if(!user){
       res.status(404).send()
     }
     res.send("User deleted successfully!")
+
+    // subscription cancellation mail
+    sendCancellationEmail(transporter, user.email, user.name)
   }
   catch (err) {
     res.status(500).send(err)
@@ -197,7 +221,5 @@ router.delete('/users/me/avatar', auth, async (req, res) => {
     res.status(500).send({ error: "Internal Server Error" });
   }
 })
-
-
 
 module.exports = router

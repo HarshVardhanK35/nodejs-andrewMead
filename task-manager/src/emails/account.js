@@ -3,53 +3,49 @@ const nodemailer = require('nodemailer');
 // dotenv configuration
 require('dotenv').config()
 
-// Create a transporter using your Gmail account
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.USER_EMAIL,
-    pass: process.env.GMAIL_APP_PASS, // You might need to generate an app password
-  },
-});
-
-const mailOptions = {
-  from: {
-    name: 'Testing-App',
-    address: process.env.USER_EMAIL
-  },
-  to: "kasavardhan2001@gmail.com",                                              // use array of emails if there are more than one email to send
-  subject: "Testing Application by Sending Emails using Nodemailer and Gmail",
-  text: "Hello World!",
-
-  // attachments: [
-  //   {
-  //     filename: 'test.pdf',
-  //     path: path.join(__dirname, 'test.pdf'),
-  //     contentType: 'application/pdf'
-  //   },
-  //   {
-  //     filename: 'image.png',
-  //     path: path.join(__dirname, 'image.png'),
-  //     contentType: 'image/png'
-  //   }
-  // ]
-
-}
-
-const sendMail = async(transporter, mailOptions) => {
+const sendWelcomeMail = async(transporter, email, name) => {
   try{
-    await transporter.sendMail(mailOptions);
-    console.log('email has been sent successfully!')
+    await transporter.sendMail({
+      from: {
+        name: 'Task Management Application',
+        address: process.env.USER_EMAIL
+      },
+      to: email,                                              // use array of emails if there are more than one email to send
+      subject: "Thanks for signing in Task-Management Application",
+      text: `Welcome to the application, ${name}. Let me know how you get along with the application.`,
+    });
+    console.log('Welcome email has been sent successfully!')
   }
   catch(err){
     console.log(err)
   }
 }
 
+const sendCancellationEmail = async(transporter, email, name) => {
+  try{
+    await transporter.sendMail({
+      from: {
+        name: "Task Management Application",
+        address: process.env.USER_EMAIL
+      },
+      to: email,
+      subject: "Sorry to see you go!",
+      text: `Goodbye, ${name}. I hope we meet sometime soon...`
+    })
+    console.log("Cancellation mail was sent!")
+  }
+  catch (err) {
+    console.log(err)
+  }
+}
+
 // Immediately Invoked Function Expression (IIFE) to send the email
-(async() => {
-  await sendMail(transporter, mailOptions)
-})();
+// (async() => {
+//   await sendMail(transporter, mailOptions)
+// })();
+
+// Export the function to use in other files
+module.exports = {
+  sendWelcomeMail,
+  sendCancellationEmail
+};

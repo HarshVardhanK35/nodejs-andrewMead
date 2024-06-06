@@ -105,3 +105,61 @@ Summary:
 -> Transporter: Configures the email sending service using Gmail.
 -> sendMail function: Sends the email using the configured transporter.
 -> IIFE: Immediately invokes the sendMail function to send the email when the script runs
+
+___________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+
+* Sending Welcome and Cancellation Emails *
+--------------------------------------------
+intro:
+------
+1. the code that generates an email need to be integrated into task-app
+2. when user creates an account... user gets a welcome email
+
+Note:
+-----
+-> we can also insert HTML
+
+const sendWelcomeMail = async(transporter, email, name) => {
+  try{
+    await transporter.sendMail({
+      from: {
+        name: 'Task Management Application',
+        address: process.env.USER_EMAIL
+      },
+      to: email,                                              // use array of emails if there are more than one email to send
+      subject: "Thanks for signing in Task-Management Application",
+      text: `Welcome to the application, ${name}. Let me know how you get along with the application.`,
+      html: `<p>Welcome to the application, <strong>${name}</strong>. Let me know how you get along with the application.</p>`,
+    });
+    console.log('Welcome email has been sent successfully!')
+  }
+  catch(err){
+    console.log(err)
+  }
+}
+
+-> uses same "transporter" which is constant
+
+// Create a transporter using your Gmail account
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false,
+  auth: {
+    user: process.env.USER_EMAIL,
+    pass: process.env.GMAIL_APP_PASS,                                           // You might need to generate an app password
+  },
+});
+
+explanation:
+------------
+-> we sent the Welcome-emails and Cancellation-emails to users when they creates account and when they deletes their account respectively
+
+-> inserted WelcomeEmail inside POST- "/users" route after saving the user to DB
+-> inserted CancellationEmail inside DELETE- "/users/me" route after deleting was successful
+
+Note:
+------
+-> same format for both CancellationEmail and WelcomeEmail
+
