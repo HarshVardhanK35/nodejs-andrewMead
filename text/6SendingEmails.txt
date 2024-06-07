@@ -105,11 +105,10 @@ Summary:
 -> Transporter: Configures the email sending service using Gmail.
 -> sendMail function: Sends the email using the configured transporter.
 -> IIFE: Immediately invokes the sendMail function to send the email when the script runs
-
 ___________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
 
-* Sending Welcome and Cancellation Emails *
---------------------------------------------
+> Sending Welcome and Cancellation Emails
+-----------------------------------------
 intro:
 ------
 1. the code that generates an email need to be integrated into task-app
@@ -162,4 +161,51 @@ explanation:
 Note:
 ------
 -> same format for both CancellationEmail and WelcomeEmail
+___________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
 
+> Environment Variables:
+------------------------
+intro:
+-------
+-> using environment variables are necessary for security and customizability.
+-> whole lot of API keys and connection URLs must not be hardcoded they have to be inside .env files
+
+using env:
+----------
+-> create "config" folder in task-manager application and the files inside it has to be ignored by setting up the ".gitignore" file
+-> create a new file "dev.env" for development inside "config" to store all the environment variables used for development
+-> this file consists of key=value pairs
+
+-> to use these variables into our code we have to install "env-cmd" with which we can use env variables across different platforms
+  -> install it as dev-dependency "npm i env-cmd --save-dev" so we can use these on "windows / linux / mac"
+  -> "npm i env-cmd --save-dev" we have to use locally but not on heroku
+
+-> with this package we have to change the script inside package.json
+  -> before "dev": "nodemon src/index.js" >>> after modification... "dev": "env-cmd -f ./config/dev.env nodemon src/index.js"
+
+Note:
+------
+1. now "env-cmd" is not working with my project so i am going with "dot-env"
+2. we provide two types of variables one of it runs locally and another runs after deployed to heroku
+3. 
+
+security and customizability issues:
+------------------------------------
+
+1. PORT:
+--------
+-> we use PORT=3000 as the port for our application inserted inside env file
+
+
+2. Database- connection:
+-------------------------
+-> the hardcoded database URL or the connection string from the mongodb-atlas
+  -> need to be set into an environment variable
+-> so when we provide DB URL then the app connects to the local database
+Note:
+------
+-> when we deploy to heroku and we have local database- URL in the app... so heroku connects to local database that is not going to exist
+-> so we can use two values...
+  -> when we run locally we use local DB-URL
+  -> when we deploy to heroku we use mongodb connection string
+->

@@ -30,7 +30,7 @@ const sendCancellationEmail = async(transporter, email, name) => {
       },
       to: email,
       subject: "Sorry to see you go!",
-      text: `Goodbye, ${name}. I hope we meet sometime soon...`
+      text: `Goodbye, ${name}. I hope we meet sometime soon again...`
     })
     console.log("Cancellation mail was sent!")
   }

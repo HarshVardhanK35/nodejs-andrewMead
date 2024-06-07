@@ -3,6 +3,9 @@ const validator = require("validator");
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 
+require('dotenv').config()
+const JWT_SECRET = process.env.JWT_SECRET_STR
+
 // const Task = require('../models/task')
 
 const userSchema = new mongoose.Schema(
@@ -87,7 +90,7 @@ userSchema.methods.getPublicProfile = function() {
 // method to generate authentication token
 userSchema.methods.generateAuthToken = async function() {
   const user = this;
-  const token = jwt.sign({ _id: user._id.toString() }, 'thisIsTaskMangerApplication')
+  const token = jwt.sign({ _id: user._id.toString() }, JWT_SECRET)
 
   user.tokens = user.tokens.concat({ token })
   await user.save()

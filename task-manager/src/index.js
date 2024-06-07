@@ -8,7 +8,7 @@ const taskRouter = require('./routes/task');
 
 const app = express()
 
-const port = process.env.PORT || 3000
+const port = process.env.PORT
 
 // middleware functions --- to send a response that "site is under maintenance"
 // app.use((req, res, next) => {
