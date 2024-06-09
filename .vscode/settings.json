@@ -4,6 +4,8 @@
     "customizability",
     "dotenv",
     "IIFE",
+    "jestjs",
+    "mochajs",
     "nodemailer",
     "nodemon",
     "sendgrid"
