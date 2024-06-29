@@ -1,0 +1,387 @@
+Real Time Chat Application
+--------------------------
+
+Creating Chat App Project:
+--------------------------
+
+1. initialize NPM and install Express
+    - we use "npm init -y" to initialize npm and "npm i express" to install express
+
+2. Setup a new Express Server
+    - Serve up the public directory
+      - for this we have to work with "path" module >>> const path = require('path') -> (in-built module no need to install)
+      - to get public directory we use "path.join" >>> const publicDirectoryPath = path.join(__dirname, "../public")
+      - express static middleware to serve up content in the directory we use >>> app.use(express.static( <path to the folder> ))
+
+    - Listen on port: 3000
+
+3. Create index.html inside public directory and render "Chat App" to the screen
+    - render "Chat App" in the body of HTML code
+
+4. add scripts to the package.json and install nodemon
+    - npm install nodemon --save-dev
+    - run either "npm start" or "npm run dev" to run the Server
+
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js"
+  }
+_____________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+
+WebSockets:
+-----------
+intro:
+------
+-> this is used to create real-time applications with node.js (but WebSocket is not specific to nodejs we can use it with other languages as well)
+
+What WebSocket are?
+-------------------
+-> it allows us to set up the communication
+
+-> we have a node server and assume that 4 different clint servers were connected to that main node server using WebSockets
+
+                        client server        client server
+                                    \         /
+                                    node server
+                                    /         \
+                          client server       client server
+
+-> with WebSocket protocol we achieve "full-duplex communication" that is "bidirectional communication"
+-> WebSocket protocol is separate from HTTP protocol
+-> there is a persistent connection between client and server
+
+
+Full Duplex Communication (Bidirectional Connection):
+                                  /
+                        the communication either goes from
+                      client -> server (or) server -> client
+----------------------------------------------------- -> this means that client can initiate communication with server and server also with client
+
+-> initially we had HTTP-request... with this client requests data from the server and then server respond to that request
+    - but there may be chances that server could not respond and could not send the data to client
+    - if client did not make request.. server would not respond and do not communicate with client
+
+-> But with WebSockets it has changed completely... we can have a consistent connection between client and server
+    - client and server connects to each other as long as it needs to... so whenever client sends messages to server and server whenever it wanted to can send messages to client
+
+Example:
+--------
+-> as assumed we have 4 connections to main server and whenever a client among these 4 clients sends a message to the server...
+    - server sends that message to other three - without requesting
+        - (that message is rendered on their screen) if and only if they are connected to the main server
+-> this is an example for "real-time chat application"
+
+Note:
+-----
+1. we implement WebSocket protocol allowing for clients to stay connected to the server and allows communication across server and different clients whoever connected
+    - so we get that done by setting up Socket.IO library
+_____________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+
+Getting Started with Socket.IO:
+-------------------------------
+1. set up Socket.IO
+
+-> Socket.IO library provides everything to set up the server in Node.JS
+    - it also provides client-side code we can use in the browser to communicate with that server
+
+-> to install Socket.IO we use
+-> we use this library to make changes to the express server that we had set up
+    >>> "npm i socket.io"
+
+-> for this application when we create a node server this can use Express and Socket.IO
+    - we do little refactoring to the existing server
+
+SocketIO set up and refactoring server:
+---------------------------------------
+const path = require('path')
+const express = require("express")
+const http = require('http')
+const socketio = require('socket.io')
+
+const app = express()
+/*
+ * creating server outside express library
+ * configuring it to use our express app
+*/
+const server = http.createServer(app)
+
+/*
+ * create new instance socket.io to configure WebSockets to work with server
+ * SocketIO expects raw HTTP server so we used explicit way to create a server with HTTP.createServer()
+ * now our server supports web sockets
+*/
+const io = socketio(server)
+
+const port = process.env.PORT || 3000
+
+const publicDirectoryPath = path.join(__dirname, "../public")
+
+app.use(express.static(publicDirectoryPath))
+
+/**
+ * configure index.js to work with clients that connect to the server
+ * we use "io.on" >>> listens to an event to occur
+ * takes in name of the event and function to run when that event has occurred
+ *
+*/
+io.on('connection', () => {
+  console.log("New Websocket Connection")
+})
+
+/*
+ * but we can not see the message that whenever we run the server
+ * so we have to load in client side of socket.io library
+ * we have to use socket.io on client side also...
+      - inside the connected HTML file use script tag with src attribute and add script (that does not exist anywhere)
+      - <script src="/socket.io/socket.io.js"></script> this is client side version of lib
+      - no we will have access from lib that server needs to set up the communication
+ * now we have to create our own client-side JS file
+      - create a new folder inside public directory which consists all JS files and create "chat.js"
+      - consists code to connect to server with WebSockets
+      - now load that JS file also using script tag inside HTML file >>> <script src="/chat_app/public/js/chat.js"></script>
+      - chat.js file has access to functions came with socket.io
+*/
+
+server.listen(port, () => {
+  console.log(`Server up and running on http://localhost:${port}`)
+})
+
+Chat.JS:
+--------
+-> call "io()" to connect to the server
+_____________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+
+Socket.IO Events:
+-----------------
+when we are working with socket.io we are sending and receiving data that are called "events"
+
+-> in this we learn how to transfer data between the server and client in real time
+-> we create a counter application which will be a demo from this we learn how to use socket.io
+    - in this server will store a number called "count"
+    - this COUNT will be shared to all the connected clients
+    - a client can increment the count... which chances the count value inside server and the changed value will be rendered over other clients as well
+
+How to transfer data from the server to client?
+-----
+
+-> we have to share the count to every connection
+
+-> we have to use...
+io.on('connection', () => {
+  console.log("New Websocket Connection")
+})
+
+-> we use parameters on the callback function that io.onb() takes in
+    - we pass "socket" to the function and it contains info about the connection
+    - the CB function and methods on socket will be run for every client who connects to the server
+
+    - socket.emit() >> we send data from server to the client...
+        - this takes in the name of the event and the data we want to send (that is "count" for this application)
+        - we can set up a custom event based on the requirement of the application we build
+
+let count = 0
+io.on('connection', (socket) => {
+  console.log("New Websocket Connection!")      // runs after every new connection
+  socket.emit('countUpdated', count)            // sends event and data to the client-side
+})
+
+-> we sent an event and data from server and now we have receive that event and data on client
+
+How to receive data on client?
+-----
+chat.js:
+--------
+
+// 1. initialize the connection
+const socket = io()
+
+// 2. receive the event that the server is sending to us
+// socket.on('') accepts...
+//    - event-name and it should match exactly to the event-name that we send from the server
+//    - function to run when that event occurs
+
+// the count that has been sent from the server will be received from the CB fun inside "socket.on()"
+
+socket.on('countUpdated', (count) => {
+  clg('the count has been updated!', count)
+})
+
+sending data from client to the server
+--------------------------------------
+chat.js:
+--------
+1. add a button inside HTML... select it from chat.js using doc.querySelector and add eventListener on the button
+-----
+document.querySelector('#inc').addEventListener('click', () => {
+  console.log("Button is clicked")
+})
+
+2. emit an event from client and allow server to listen to that event
+-----
+-> so whenever we click on that button we emit an event to the server
+
+document.querySelector('#inc').addEventListener('click', () => {
+  console.log("Button is clicked")
+
+  // send an event from the client-side
+  socket.emit('increment')
+})
+
+3. listen to the event on server that has been sent from client and update
+-----
+-> to listen we use...
+socket.on('same event-name')
+
+-> as per the functionality we increment the count value
+count = count + 1
+
+-> to send the updates count value to the client
+socket.emit('countUpdated', count)
+
+-------------
+code-snippet:
+-------------
+index.js
+---------
+io.on('connection', (socket) => {
+  console.log("New Websocket Connection!")        // runs after every new connection
+  socket.emit('countUpdated', count)              // send an event and count-value to the client
+  socket.on('increment', () => {                  // receives an event that has been sent from the client
+    count = count + 1                             // increments the count value
+    socket.emit('countUpdated', count)            // sends the updated count value again to the server
+  })
+})
+
+chat.js:
+--------
+const socket = io()
+socket.on('countUpdated', (count) => {
+  console.log("The count has been updated!", count)                         // listens to the event sent from the server and logs to the console
+})
+document.querySelector('#inc').addEventListener('click', () => {
+  // console.log("Button is clicked")
+  socket.emit('increment')                                                  // sends an event to the server on every button click
+})
+
+-------------
+Note-Problem:
+-------------
+1. open a new tab and connect to the "localhost:3000" and we can see the latest count value
+
+Problem:
+--------
+2. whenever we update the count inside a single connected tab ... that tab only will get notified the updated count value but not on the other tabs or connected tabs
+
+-> to solve this:
+-----------------
+we use "io.emit()" instead of "socket.emit()"
+
+-------------
+code-snippet:
+-------------
+index.js
+---------
+io.on('connection', (socket) => {
+  console.log("New Websocket Connection!")
+  socket.emit('countUpdated', count)
+  socket.on('increment', () => {
+    count = count + 1
+
+    // for only single connection
+    // socket.emit('countUpdated', count)
+
+    // for every connection
+    io.emit('countUpdated', count)
+  })
+})
+
+The full code for real-time counter application:
+------------------------------------------------
+src/index.js:
+-------------
+const path = require('path')
+const express = require("express")
+const http = require('http')
+const socketio = require('socket.io')
+const app = express()
+const server = http.createServer(app)
+const io = socketio(server)
+const port = process.env.PORT || 3000
+const publicDirectoryPath = path.join(__dirname, "../public")
+app.use(express.static(publicDirectoryPath))
+let count = 0
+                                                            // server(emit) -> client(receive) - countUpdated
+                                                            // client(emit) -> server(receive) - increment
+io.on('connection', (socket) => {
+  console.log("New Websocket Connection!")
+  socket.emit('countUpdated', count)
+  socket.on('increment', () => {
+    count = count + 1
+    // socket.emit('countUpdated', count)        // for only single connection
+    io.emit('countUpdated', count)               // for every connection
+  })
+})
+server.listen(port, () => {
+  console.log(`Server up and running on http://localhost:${port}`)
+})
+
+public/js/chat.js:
+------------------
+const socket = io()
+socket.on('countUpdated', (count) => {
+  console.log("The count has been updated!", count)
+})
+document.querySelector('#inc').addEventListener('click', () => {
+  // console.log("Button is clicked")
+  socket.emit('increment')
+})
+
+public/index.html:
+------------------
+<body>
+  Chat App
+  <button id="inc">+1</button>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="./js/chat.js"></script>
+</body>
+_____________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+
+Sockets.IO Events Challenge:
+----------------------------
+Goal-1:
+-------
+1. have server emit "message" when new client comments
+    - send "Welcome!" as the event data
+
+index.js:
+--------
+io.on('connection', (socket) => {
+  console.log("New Websocket Connection!")
+  socket.emit('message', data)
+})
+
+
+2. have client listen for "message" event and print the message to console
+
+chat.js:
+--------
+socket.on('message', (data) => {
+  console.log("Hi!", data)
+})
+
+Goal-2:
+-------
+3. create a form with an input and button in HTML
+
+<form id="message-form">
+  <input type="text" placeholder="Type a message">
+  <button>Send</button>
+</form>
+
+4. setup event listener for form submissions
+    - emit "sedMessage" with input string as message data
+
+
+
+5. have server listen for "sendMessage"
+    - send message to all connected clients

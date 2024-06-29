@@ -8,6 +8,7 @@
     "mochajs",
     "nodemailer",
     "nodemon",
-    "sendgrid"
+    "sendgrid",
+    "socketio"
   ]
 }
