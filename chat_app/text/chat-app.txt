@@ -381,7 +381,62 @@ Goal-2:
 4. setup event listener for form submissions
     - emit "sedMessage" with input string as message data
 
-
+document.querySelector('#message-form').addEventListener('submit', (e) => {
+  e.preventDefault()
+  const message = e.target.elements.message.value
+  socket.emit('sendMessage', message)
+})
 
 5. have server listen for "sendMessage"
     - send message to all connected clients
+
+io.on('connection', (socket) => {
+  console.log("New Websocket Connection!")
+
+  socket.emit('message', data)
+  socket.on('sendMessage', (message) => {
+    io.emit('message', message)
+  })
+})
+
+_____________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+
+Broadcasting Events:
+--------------------
+-> we implement two features now
+    1. when a new user joins, all other connected users get a message saying that a "new user has joined the chat room!"
+    2. when a user leaves a chat room all connected users get a message that a "user has left that chat room"
+
+-> when it is emitting events we have...
+    - "socket.emit()"   >>> emits event to single user
+    - "io.emit()"       >>> emits event to multiple connected users
+
+1. when a new user joins the chat room
+-----
+-> when we "broadcast" an event we send the message to every other user but not for the user who has joined
+    - "socket.broadcast.emit()" >>> this emits an event for every other user expect the current user / socket
+ex:
+---
+socket.broadcast.emit('message', "A new user has joined!")
+
+-----
+we have three ways to emit an event:
+-----
+1. socket.emit()                -> to a particular connection
+2. io.emit()                    -> every connection
+3. socket.broadcast.emit()      -> every one expect that particular connection\
+
+
+2. when a user leaves the chat room
+-----
+whenever there is a connection... we use              >>> io.on("connection")
+whenever a connection has disconnected... we use      >>> socket.on("disconnect")
+
+-> connection and disconnect are the built-in events
+    - whenever a socket gets disconnected we use only "socket.on()" but we use "io.on()" when there is a new connection
+ex:
+---
+socket.on("disconnect", () => {
+  io.emit('message', "A user has left the chat!")
+})
+
