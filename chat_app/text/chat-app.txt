@@ -440,3 +440,63 @@ socket.on("disconnect", () => {
   io.emit('message', "A user has left the chat!")
 })
 
+_____________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+
+Sharing Your Location:
+----------------------
+-> adding a new feature to allow users to share their location (on their permission)
+    - we use client side code and geo-location API to fetch user's location
+
+-> we use MDN geo-location API (MDN- Mozilla Dev Network)
+
+1. to share location we include a button inside HTML to ask them to share the location
+    - we set up a button inside HTML with an id ('send-location')
+
+2. send location using "chat.js" code
+  - select the button with it's id and addEventListener on to it
+
+  Check if geo-location supports or not:
+  -----
+  - whenever it is clicked we check that specific browser has the feature or not
+    - (some browsers do not have this feature "to support the location sharing option")
+      - if it does not support... then return from the function execution and use an alert or modal
+
+  if it supports:
+  -----
+  - emit an event from client (chat.js) consists of latitude and longitude
+  - listen to the same event from server (index.js) and emit location details to everyone using "io.emit()"
+
+code-snippet:
+-------------
+chat.js:
+--------
+// code to access user's location
+document.querySelector('#send-location').addEventListener('click', () => {
+  if (!navigator.geolocation) {
+    return alert('Geo Location is not supported by your browser!')
+  }
+  // fetch location
+  navigator.geolocation.getCurrentPosition((position) => {
+    socket.emit('sendLocation', {
+      latitude: position.coords.latitude,
+      longitude: position.coords.longitude
+    })
+  })
+})
+
+index.js:
+---------
+socket.on('sendLocation', (coords) => {
+  io.emit('message', `Location: long- ${coords.longitude} and lat- ${coords.latitude}`)
+})
+
+3. the location details from server will be used to fetch exact location using google maps
+-----
+use URL: www.google.com/maps?q=0,0
+
+    - ?q -> query  >>> equals to latitude and longitude
+
+-> we use these details and get exact location on Google Maps
+    - so change the code inside server (index.js)
+ex:
+---
