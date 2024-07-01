@@ -500,3 +500,7 @@ use URL: www.google.com/maps?q=0,0
     - so change the code inside server (index.js)
 ex:
 ---
+socket.on('sendLocation', (coords) => {
+  io.emit('message', `https://google.com/maps?q=${coords.longitude},${coords.latitude}`)
+})
+_____________________________________________________________________________________________________________________________________________________________________________________________________________________________________

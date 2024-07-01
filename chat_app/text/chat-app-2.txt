@@ -1,0 +1,208 @@
+_____________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+
+Event Acknowledgement:
+----------------------
+intro:
+------
+
+1. an event acknowledgement allows receiver of the event to acknowledge that it received and processed the event
+
+// server(emit) -> client(receive) --acknowledgement -> server
+// client(emit) -> server(receive) --acknowledgement -> client
+    - server emits event to client and client acknowledges server that it received the event and started processing it
+    - vice versa
+
+-> the acknowledgement is the last argument that is a CB function of emit function
+    - socket.emit('event-name', data, () => { "acknowledgement- The message was delivered" })
+      - if this is emitted from client
+
+                  same event that         acknowledgement function that has
+                  has fired from          sent from client
+                  client
+                      /                        /
+      - socket.on('event-name', (message, callback) => {
+          io.emit('message', message)                                 --- server side code
+          callback()
+        })
+ex:
+---
+server(index):
+--------------
+socket.on('sendMessage', (message, callback) => {
+  io.emit('message', message)
+  callback()
+})
+
+client(chat.js):
+----------------
+socket.emit('sendMessage', message, () => {
+  console.log('Message delivered')
+})
+
+Conclusion:
+-----------
+1. whoever emitting event sets up a callback function... whoever is receiving the event calls the callback function
+
+
+UseCase- acknowledgement
+------------------------
+1. adding validation for the data that has been sent across
+
+- ex: if we do not want to allow messages that contain profane languages
+  - there is an NPM module to integrate to avoid profane language (NPM: bad-words)
+
+NPM: bad-words
+--------------
+-> as the document shows that... we can list our own bad words to exclude from the server
+
+-> import the module
+const Filter = require('bad-words')
+
+-> initialize the Filter with 'F'
+const filter = new Filter()
+
+-> the profanity will be checked inside server(index.js) when messages from the client were sent(chat.js)
+const filter = new Filter()
+if (filter.isProfane()) {
+  return callback('profanity is not allowed!')
+}
+
+-> chat.js (client-side) - handle the error
+socket.emit('sendMessage', message, (error) => {
+  if(error){
+    return console.log(error)
+  }
+  console.log('Message delivered')
+})
+
+Challenge:
+----------
+setup acknowledgement:
+-----
+1. setup client acknowledgement
+-----
+client:
+-----
+  navigator.geolocation.getCurrentPosition((position) => {
+    socket.emit('sendLocation', {
+      latitude: position.coords.latitude,
+      longitude: position.coords.longitude
+    }, () => {
+      console.log("location shared!")
+    })
+  })
+
+2. setup server to send back the acknowledgement
+3. have the client print "Location Shared!" when acknowledged
+-----
+server:
+-----
+  socket.on('sendLocation', (coords, callback) => {
+    io.emit('message', `https://google.com/maps?q=${coords.longitude},${coords.latitude}`)
+    callback()
+  })
+_____________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+
+Form and Button States:
+-----------------------
+
+-> modifying form inside HTML and the Form-Handling with chat.js code
+-----
+
+-> when ever we send a message the form is not clearing on it's own
+-> sending the location is taking some time... so we have to disable all the buttons in this time period
+    - so that user can not be able to send location another time until the 1st try has finished
+-----
+
+-> so we have to disable and enable the form after a message and location has been sent
+    - it avoids the accidental double clicks
+
+chat.js:
+--------
+Note:
+-----
+-> "$" as a prefix for every element is the element that is taken from the HTML document
+
+// elements
+const $messageForm = document.querySelector('#message-form')
+const $messageFormInput = $messageForm.querySelector('input')
+const $messageFormButton = $messageForm.querySelector('button')
+const $sendLocationButton = document.querySelector('#send-location')
+
+chat.js:
+--------
+-> chat.js for disabling and reenabling the buttons message form-button and send location-button
+
+$messageForm.addEventListener('submit', (e) => {
+  e.preventDefault()
+  $messageFormButton.setAttribute('disabled', 'disabled')                 // Disable button
+  const message = e.target.elements.message.value
+  socket.emit('sendMessage', message, (error) => {
+    $messageFormButton.removeAttribute('disabled')                        // enable the button again
+    $messageFormInput.value = ''
+    $messageFormInput.focus()
+    if(error){
+      return console.log(error)
+    }
+    console.log('Message delivered')
+  })
+})
+$sendLocationButton.addEventListener('click', () => {                         // code to access user's location
+  if (!navigator.geolocation) {
+    return alert('Geo Location is not supported by your browser!')
+  }
+  $sendLocationButton.setAttribute('disabled', 'disabled')              // disable send-location button
+  navigator.geolocation.getCurrentPosition((position) => {                    // fetch location
+    socket.emit('sendLocation', {
+      latitude: position.coords.latitude,
+      longitude: position.coords.longitude
+    }, () => {
+      $sendLocationButton.removeAttribute('disabled')                   // enable the send-location button again
+      console.log("location shared!")
+    })
+  })
+})
+_____________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+
+Rendering Messages:
+-------------------
+
+-> render the messages on the browser.... that were printing in the terminal till now
+    - we will be using mustache template library... used to define HTML templates and render those template using js
+    - this helps us to render dynamic content to the webpage from js
+-----
+
+in index.HTML:
+--------------
+---
+1. paste the below scripts at last of the body tag.
+---
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/3.0.1/mustache.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qs/6.6.0/qs.min.js"></script>
+
+---
+2. create a template
+---
+-> create a template with script tag
+<script id="message-template" type="text/html">
+  <div>
+    <p>this is a message</p>
+  </div>
+</script>
+
+Note:
+-----
+-> type="text/html" >>> which tells the browser that we have HTML inside the template
+
+---
+3. to render the messages generated
+---
+<div id="messages"></div>
+    -> the messages will be rendered here with chat.js dynamically
+
+
+in chat.js:
+-----------
+-> to render the messages we use JS here... after we receive messages
+
