@@ -170,11 +170,10 @@ Rendering Messages:
 -> render the messages on the browser.... that were printing in the terminal till now
     - we will be using mustache template library... used to define HTML templates and render those template using js
     - this helps us to render dynamic content to the webpage from js
------
 
+---
 in index.HTML:
 --------------
----
 1. paste the below scripts at last of the body tag.
 ---
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/3.0.1/mustache.min.js"></script>
@@ -198,11 +197,64 @@ Note:
 ---
 3. to render the messages generated
 ---
+-> we add the below div inside HTML
 <div id="messages"></div>
     -> the messages will be rendered here with chat.js dynamically
 
-
+---
 in chat.js:
 -----------
--> to render the messages we use JS here... after we receive messages
+-> to render messages we use chat.js,
+    - we use socket.on('message') --- event
+
+-> 1st we grab the elements and templates that were created inside HTML using id-attached to every element and templates
+// element
+const $messages = document.querySelector('#messages')
+// Targeted HTML of Templates
+const messageTemplate = document.querySelector('#message-template').innerHTML
+
+-> 2nd we need to render the templates
+
+static template- rendering
+---
+socket.on('message', (data) => {
+  const html = Mustache.render(messageTemplate)                   // used mustache library to render the template
+  $messages.insertAdjacentHTML('beforeend', html)
+})
+
+Note:
+-----
+-> this will render content which is inside the template
+
+---
+What if we want to render the dynamic content?
+
+-> we change the syntax as below
+-----
+// script tag inside HTML
+---
+<script id="message-template" type="text/html">
+  <div>
+    <p>{{ message }}</p>                                                    // this accepts the dynamic content
+  </div>
+</script>
+
+// socket.on() inside chat.js
+---
+socket.on('message', (data) => {                                                          // this data will be rendered
+  const html = Mustache.render(messageTemplate, {                     // data to render as the 2nd argv
+    message: data                                                             // to render "data" that came with socket.on()
+  })
+  $messages.insertAdjacentHTML('beforeend', html)
+})
+_____________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+
+Rendering Location Messages:
+----------------------------
+-> we add link to the location instead as HTML text
+
+Challenge-1:
+------------ create a separate event for location sharing message
+1. emit "locationMessage" event from server with the URL
+2. listen for above event and print that URL to the console
 
