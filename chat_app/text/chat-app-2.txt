@@ -258,3 +258,155 @@ Challenge-1:
 1. emit "locationMessage" event from server with the URL
 2. listen for above event and print that URL to the console
 
+index.js:
+-------
+-> emitted "sendLocation" event...
+---
+socket.on('sendLocation', (coords, callback) => {
+  io.emit('location', `https://google.com/maps?q=${coords.longitude},${coords.latitude}`)
+  callback()
+})
+
+chat.js:
+--------
+-> listened to the event
+---
+socket.on('location', (url) => {
+  console.log(url)
+  const html = Mustache.render(locationTemplate, {
+    locationURL: url
+  })
+  $location.insertAdjacentHTML('beforeend', html)
+})
+
+index.html:
+-----------
+-> render the location on web page
+----
+<script id="location-template" type="text/html">
+  <div>
+    <p><a href="{{locationURL}}" target="_blank">My current location</a></p>          // render dynamic content with {{}}
+  </div>
+</script>
+_____________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+
+Working with Time Stamps:
+-------------------------
+-> integrate time to the message when they sent... time will be attached to the messages when they have sent
+
+1st
+---
+How to generate Time Stamps:
+----------------------------
+-> we have "Date()" constructor function
+    - use "new" operator to instantiate the Date() object
+
+ex: const now = new Date()
+
+-> so "now" holds all the methods that Date() object has.
+---
+methods:
+--------
+-> now.getDate()... which returns today's date
+-> now.getTime()... we get a big number (Time Stamp)
+
+-> as we have to use a similar code for every-time we send a message to the client
+    - so we use a function for this we create a separate function inside a NEW FILE and export it!
+    - create a new folder "utils" inside "src" and inside it create a file "messages.js"
+
+inside src/utils/messages.js:
+-----------------------------
+const generateMessage = (text) => {
+  return {
+    text: text,
+    createdAt: new Date().getTime()                         // we use Date() object here to generate time
+  }
+}
+module.exports = {
+  generateMessage
+}
+
+server (index.js):
+-----------------
+-> import function from this file into any file where ever we want!
+---
+1st
+    -> we use it inside server (index.js)
+    -> we replace the message we send with this function "generateMessage"
+
+// import the function "generateMessage" from "messages.js" file
+---
+const { generateMessage } = require('./utils/messages')
+
+io.on('connection', (socket) => {
+  console.log("New Websocket Connection!")
+  socket.emit('message', generateMessage("Welcome!"))                                               // used here
+  socket.broadcast.emit('message', generateMessage("A new user has joined the chat!"))              // used here
+  socket.on('sendMessage', (message, callback) => {
+    const filter = new Filter()
+    if (filter.isProfane()) {
+      callback('Profanity is not allowed!')
+    }
+    io.emit('message', generateMessage(message))                                  // used here
+    callback()
+  })
+  socket.on('sendLocation', (coords, callback) => {
+    io.emit('location', `https://google.com/maps?q=${coords.longitude},${coords.latitude}`)
+    callback()
+  })
+  socket.on('disconnect', () => {
+    io.emit('message', generateMessage("A user has left the chat!"))                                // used here
+  })
+})
+
+and
+change the event that we are listening inside "chat.js" file:
+---
+socket.on('message', (data) => {
+  // console.log(data)
+  const html = Mustache.render(messageTemplate, {
+    message: data.text                                                 // we access the "text" from
+  })
+  $messages.insertAdjacentHTML('beforeend', html)
+})
+
+---
+2nd
+-> add "createdAt" to the template we render where the message is rendering
+
+index.html:
+------------
+-> rendering the time with "createdAt" with "message"
+---
+<script id="message-template" type="text/html">
+  <div>
+    <p>{{createdAt}}- {{message}}</p>
+  </div>
+</script>
+
+-> sending the data from "data" object inside event-listening
+---
+socket.on('message', (data) => {
+  // console.log(data)
+  const html = Mustache.render(messageTemplate, {
+    message: data.text,
+    createdAt: data.createdAt
+  })
+  $messages.insertAdjacentHTML('beforeend', html)
+})
+
+output:
+-------
+-> so the rendered data when ever a message is rendered
+ex: 1720450851982- Welcome!
+
+-> the number rendered is not useful for the clients
+
+Note:
+-----
+-> JS gives you un-formatted time stamp
+
+Moment Library:
+---------------   To format the time stamp from Date() we get
+-> so to format the date we get... we use "moment"- library
+-> we have methods on it we use to format the un-formatted time stamp 
