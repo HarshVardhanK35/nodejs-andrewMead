@@ -5,7 +5,7 @@ const socketio = require('socket.io')
 const Filter = require('bad-words')
 
 // import generateMessage() --- use destructuring
-const { generateMessage } = require('./utils/messages')
+const { generateMessage, generateLocationMessage } = require('./utils/messages')
 
 const app = express()
 
@@ -40,7 +40,7 @@ io.on('connection', (socket) => {
   })
 
   socket.on('sendLocation', (coords, callback) => {
-    io.emit('location', `https://google.com/maps?q=${coords.longitude},${coords.latitude}`)
+    io.emit('location', generateLocationMessage(`https://google.com/maps?q=${coords.longitude},${coords.latitude}`))
     callback()
   })
 
