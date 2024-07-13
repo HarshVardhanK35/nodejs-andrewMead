@@ -23,19 +23,23 @@ app.use(express.static(publicDirectoryPath))
 io.on('connection', (socket) => {
   console.log("New Websocket Connection!")
 
-  socket.emit('message', generateMessage("Welcome!"))
+  socket.on('join', ({ username, room }) => {
 
-  socket.broadcast.emit('message', generateMessage("A new user has joined the chat!"))
+    socket.join(room)
+
+    socket.emit('message', generateMessage("Welcome!"))
+    socket.broadcast.to(room).emit('message', generateMessage(`${username} has joined!`))
+
+  })
 
   socket.on('sendMessage', (message, callback) => {
-
     const filter = new Filter()
 
     if (filter.isProfane()) {
       callback('Profanity is not allowed!')
     }
 
-    io.emit('message', generateMessage(message))
+    io.to().emit('message', generateMessage(message))
     callback()
   })
 
@@ -45,7 +49,7 @@ io.on('connection', (socket) => {
   })
 
   socket.on('disconnect', () => {
-    io.emit('message', generateMessage("A user has left the chat!"))
+    io.to().emit('message', generateMessage("A user has left the chat!"))
   })
 })
 

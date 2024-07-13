@@ -1,0 +1,59 @@
+1. previously we have developed the UI for this app which includes a join page and nice CSS for chat room
+2. when ever a person joins a chat room... they get routed to the path:
+  - http://localhost:3000/chat.html?username=Harsha&room=India
+    - this path includes username and room (details)
+
+Note:
+-> so this query string segments can be accessed with the JS.
+
+
+1. How to access to the query string from browser or through inspecting the web page?
+---
+-> inspect the web page -> write the code: "location.search" -> gives the query string: "?username=Harsha&room=India"
+-> so in order to parse this query string
+  - we use the third library that was added into the HTML (via cdnjs)
+
+
+2. Use chat.js to parse the query string
+---
+-> we use... Qs.parse(location.search, { ignoreQueryPrefix: true })
+  - "ignoreQueryPrefix" which removes the "?" before the "?username=Harsha&room=India"
+
+-> we get an object from the above line of code
+  - Qs.parse(location.search, { ignoreQueryPrefix: true });
+    - destructuring username, room from the result we get... const { username, room }
+snpt:
+----
+const { username, room } = Qs.parse(location.search, { ignoreQueryPrefix: true });
+
+-> send the username and room to the server through an event
+  - socket.emit('join', { username, room });
+
+
+3. listen to the "join" event that was sent from "chat.js" file
+---
+-> before listening to the "message" event... we set up an event to listen on "join" event that was sent from chat.js
+
+socket.join()
+---
+-> this allows us to join a chat room and we pass the name of the room we try to join.
+  - and this gives us the chance to emit events only to that specific room
+
+Note:
+-> till now we have sent events from server to client using: "socket.emit()", "io.emit()", "socket.broadcast.emit()"
+                                                                |                 |                     |
+                                                        sends an event            |             sends to every client
+                                                      to specific client          |          expect the a specific client
+                                                                            sends to every
+                                                                          connected client
+-> room events
+                    to specific rom                               to specific room
+                        |                                               |
+                "io.to(room).emit()"              "socket.broadcast.to(room).emit()"
+                    |                                  |
+                  emits to                      emits to everyone
+            everyone in that room           expect the specific client
+
+-> the io.to().emit() and socket.broadcast.to().emit()
+  - these are limiting to that specific chat room itself
+
