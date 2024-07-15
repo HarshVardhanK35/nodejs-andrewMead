@@ -56,4 +56,24 @@ Note:
 
 -> the io.to().emit() and socket.broadcast.to().emit()
   - these are limiting to that specific chat room itself
+______________________________________________________________________________________________________________________________________________________________________
 
+Storing User: Part-1
+--------------------
+Intro:
+-> we need to track which users are in which room with their respective usernames
+
+steps:
+---
+-> create "users.js" inside "utils" directory
+-> inside we create four functions:
+    - addUser:        tracks a new user when he/she joins the room
+    - removeUser:     stops tracking a user when he/she leaves the room
+    - getUser:        fetch an existing user's data
+    - getUsersInRoom:  get all user inside a specific room
+
+-> addUser = ({ id, username, room }) => {}
+  - remember that id will be get from the individual socket (every single connection to the server has a unique Id generated for it!)
+  - username and room are received from the frontend
+
+-> removeUser(id){}

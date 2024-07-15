@@ -12,6 +12,7 @@
     "nodemailer",
     "nodemon",
     "sendgrid",
-    "socketio"
+    "socketio",
+    "Vardhan"
   ]
 }
