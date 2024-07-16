@@ -73,7 +73,234 @@ steps:
     - getUsersInRoom:  get all user inside a specific room
 
 -> addUser = ({ id, username, room }) => {}
-  - remember that id will be get from the individual socket (every single connection to the server has a unique Id generated for it!)
+  - remember that id will be get from the individual socket (with every single connection to the server a unique Id generated!)
+    - id: socket.id (a unique id generated for every connection) 
   - username and room are received from the frontend
 
--> removeUser(id){}
+code snippet for:
+---
+chat_app/src/utils/users.js
+---
+/*
+ * Note:
+ * findIndex()  -> we get the position of the an array item
+ * find()       -> returns the first element in the array that satisfies condition
+ * filter()     -> returns an array of all elements that pass the test
+*/
+
+const users = [];
+
+// --------------------------------------------------------------------------------- add user
+const addUser = ({ id, username, room }) => {
+
+  // Validate the data
+  if (!username || !room) {
+    return {
+      error: "Username and room are required!",
+    };
+  }
+
+  // Clean the data
+  username = username.trim().toLowerCase();
+  room = room.trim().toLowerCase();
+
+  // Check for an existing user
+  const existingUser = users.find((user) => {
+    return user.room === room && user.username === username;
+  });
+
+  // Validate the existing user... if: return error
+  if (existingUser) {
+    return {
+      error: "Username is in use!",
+    };
+  }
+
+  // else: Store user
+  const user = { id, username, room };
+  users.push(user);
+  return { user };
+};
+
+
+// --------------------------------------------------------------------------------- remove user
+const removeUser = (id) => {
+
+  // index: 0 or greater if there is a match & -1 if there is no match
+  const index = users.findIndex((user) => {
+    return user.id === id
+  })
+  if (index !== -1) {
+    return users.splice(index, 1)[0]
+  }
+}
+
+______________________________________________________________________________________________________________________________________________________________________
+
+Storing User: Part-2
+--------------------
+
+// --------------------------------------------------------------------------------- get a user
+const getUser = (id) => {
+  return users.find((user) => {
+    return user.id === id
+  })
+}
+
+
+// --------------------------------------------------------------------------------- get all users in a room
+const getUsersInRoom = (room) => {
+  room = room.trim().toLowerCase()
+  return users.filter((user) => user.room === room)
+}
+
+module.exports = {
+  addUser,
+  removeUser,
+  getUser,
+  getUsersInRoom
+}
+______________________________________________________________________________________________________________________________________________________________________
+
+Tracking Users Leaving and Joining
+----------------------------------
+-> now import all the functions into "index.js (server)" that were created inside "chat.js"
+  - // import user management functions 
+  - const { addUser, removeUser, getUser, getUsersInRoom } = require('./utils/users')
+
+
+1. Usage of addUser:
+--------------------
+-> we have to use addUser where a user joins a room (code inside index.js)
+-> with addUser() function we get either an error or user property that was added
+
+addUser({ id, username, room } : {
+    id: any;
+    username: any;
+    room: any;
+}) : 
+{                           |
+    error: string;          | - the data that addUser returns (either an error or a user)
+    user?: undefined;       |
+} | {
+    user: 
+    {
+        id: any;
+        username: any;
+        room: any;
+    };
+    error?: undefined;
+}
+import addUser
+
+example snippet:
+---                                           
+                                                  * an acknowledgement will be sent using a callback *
+io.on('connection', (socket) => {                 /
+  console.log("New Websocket Connection!")       /
+                                                /
+                                               | 
+  socket.on('join', ({ username, room }, callback) => {
+    
+    const { error, user } = addUser({ id: socket.id, username: username, room: room })
+                                                 |
+    if (error) {                                  \
+      return callback(error)                       \
+    }                                             * unique id generated for every connection *
+    socket.join(user.room)
+  })
+})
+
+
+2. Usage of removeUser():
+-------------------------
+io.on('connection', (socket) => {
+  console.log("New Websocket Connection!")
+  socket.on('disconnect', () => {
+    
+    // we use removeUser function here
+    const user = removeUser(socket.id)
+
+    if (user) { 
+      io.to(user.room).emit('message', generateMessage(`${user.username} has left the chat!`))
+    }         |
+  })           \
+})              \
+              * this message is for room specific *
+
+
+error on client:
+---
+-> if there were insufficient details provided 
+    or
+      if a user has entered same username that already a user with same username already exists (in same room)
+
+-> we handle the error on client side (/public/chat.js)
+
+example snippet:
+---
+socket.emit('join', { username, room }, (err) => {
+  if (err) {
+    alert(err)                    - error will be alerted 
+    location.href = '/'           - and redirected to the home / join page
+  }
+});
+______________________________________________________________________________________________________________________________________________________________________
+
+Sending messages to specific room
+---------------------------------
+-> in here we gonna use getUser(socket.id) to get the user --- (inside index.js (server))
+-> we change the template for rendering usernames of people who sent the messages (both chat__messages and locations) --- (inside chat.html (to render messages))
+-> change the template of the generateMessage() and generateLocationMessage() functions 
+    - which they accept username as an argument and used inside HTML template
+
+snippets
+--------
+index.js:
+---
+io.on('connection', (socket) => {
+  socket.on('sendMessage', (message, callback) => {
+
+    const user = getUser(socket.id);                          // --- we fetch the user and user details 
+    // console.log(user)
+    
+    const filter = new Filter()
+    if (filter.isProfane()) {
+      callback('Profanity is not allowed!')
+    }
+
+    io.to(user.room).emit('message', generateMessage(user.username, message))       // --- use "user.room" to send messages to that specific room passed
+    callback()
+  })
+})
+
+chat.js:
+---
+socket.on('message', (data) => {
+  // console.log(data)
+  const html = Mustache.render(messageTemplate, {
+    username: data.username,
+    message: data.text,
+    createdAt: moment(data.createdAt).format('h:mm a')
+  })
+  $messages.insertAdjacentHTML('beforeend', html)
+})
+
+messages.js:
+---
+const generateMessage = (username, text) => {
+  return {
+    username: username,
+    text: text,
+    createdAt: new Date().getTime()
+  }
+}
+
+index.html:
+---
+-> updated the autocomplete option to off
+
+<form id="message-form" >
+  <input name="message" type="text" placeholder="Type a message" required autocomplete="off">
+  <button>Send</button>
+</form>
