@@ -249,6 +249,7 @@ ________________________________________________________________________________
 
 Sending messages to specific room
 ---------------------------------
+
 -> in here we gonna use getUser(socket.id) to get the user --- (inside index.js (server))
 -> we change the template for rendering usernames of people who sent the messages (both chat__messages and locations) --- (inside chat.html (to render messages))
 -> change the template of the generateMessage() and generateLocationMessage() functions 
@@ -375,4 +376,9 @@ socket.on("roomData", (data) => {
   })
   $sidebar.innerHTML = html                     | - to render const html = Mustache.render(sidebarTemplate)... inside innerHTML of sidebar div
 })
+______________________________________________________________________________________________________________________________________________________________________
 
+Automatic Scrolling
+-------------------
+
+-> 

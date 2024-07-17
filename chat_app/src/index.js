@@ -79,7 +79,7 @@ io.on('connection', (socket) => {
 
     // we use removeUser function here
     const user = removeUser(socket.id)
-    console.log(user)
+    // console.log(user)
 
     if (user) { 
       io.to(user.room).emit('message', generateMessage('Admin', `${user.username} has left the chat!`))
