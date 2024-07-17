@@ -263,7 +263,7 @@ io.on('connection', (socket) => {
 
     const user = getUser(socket.id);                          // --- we fetch the user and user details 
     // console.log(user)
-    
+
     const filter = new Filter()
     if (filter.isProfane()) {
       callback('Profanity is not allowed!')
@@ -296,7 +296,7 @@ const generateMessage = (username, text) => {
   }
 }
 
-index.html:
+chat.html:
 ---
 -> updated the autocomplete option to off
 
@@ -304,3 +304,75 @@ index.html:
   <input name="message" type="text" placeholder="Type a message" required autocomplete="off">
   <button>Send</button>
 </form>
+______________________________________________________________________________________________________________________________________________________________________
+
+Rendering User List 
+-------------------
+-> rendering users present in a room and room name on the top of the chat room side_bar 
+    - (the list automatically updates when ever users join and leave the chat room)
+
+-> we use getUsersInRoom() to get all the users in that room
+-> we emit a new event from the server to client when users inside of a room changes
+
+
+snippets
+---
+
+1. we have render room name and users list
+    - this snippet is written inside the "join" and "disconnect" events (when the users join and leave / disconnect)
+---
+io.to(user.room).emit("roomData", {
+  room: user.room,
+  users: getUsersInRoom(user.room)
+})
+
+
+2. to render the above data we have inject a template and this template rendered inside HTML (chat.html)
+---
+<div id ="sidebar" class="chat__sidebar">
+
+-> to render below template inside HTML of above div tag
+
+<script id="sidebar_template" type="text/html">
+  <h2 class="room-title">{{room}}</h2>
+  <h3 class="list-title">Users</h3>
+  <ul class="users">
+    {{#users}}
+      <li>{{username}}</li>
+    {{/users}}
+  </ul>
+</script>
+
+-> to render data inside template
+-> as we get a users (an array of objects): [{}, {}, {}...] --- contains user details (id, username, room)
+-> so in order to render inside a template... from the objects of an array use --- 
+
+       {{#users}} {{/users}}
+          |           |
+      it is name of the array
+          |           |
+        opening     closing
+    
+  - every thing inside of {{#users}}...{{/users}} it happens for each element in that array
+
+  {{#users}}
+    <li>{{username}}</li>
+  {{/users}}
+
+
+3. we have to render this using "chat.js" --- client side JS file
+---
+-> select the template and div element using querySelector... 
+    - document.querySelector('#sidebar_template').innerHTML
+    - document.querySelector('#sidebar')
+
+-> to render data dynamically...
+
+socket.on("roomData", (data) => {
+  const html = Mustache.render(sidebarTemplate, {         |
+    room: data.room,                                      | - to render data inside template
+    users: data.users                                     |
+  })
+  $sidebar.innerHTML = html                     | - to render const html = Mustache.render(sidebarTemplate)... inside innerHTML of sidebar div
+})
+

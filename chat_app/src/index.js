@@ -43,6 +43,11 @@ io.on('connection', (socket) => {
     socket.emit('message', generateMessage('Admin', "Welcome!"))
     socket.broadcast.to(room).emit('message', generateMessage('Admin', `${username} has joined!`))
 
+    io.to(user.room).emit("roomData", {
+      room: user.room,
+      users: getUsersInRoom(user.room)
+    })
+
     callback()
   })
 
@@ -74,10 +79,16 @@ io.on('connection', (socket) => {
 
     // we use removeUser function here
     const user = removeUser(socket.id)
+    console.log(user)
 
     if (user) { 
       io.to(user.room).emit('message', generateMessage('Admin', `${user.username} has left the chat!`))
     }
+
+    io.to(user.room).emit("roomData", {
+      room: user.room,
+      users: getUsersInRoom(user.room)
+    })
   })
 })
 
