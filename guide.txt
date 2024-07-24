@@ -1,0 +1,20 @@
+------------------------------------------------------------ New Features Ideas
+
+Weather app - new features
+--------------------------
+-> add a button inside application to allow user to fetch their location and weather of their location
+  - (instead of typing out their location)
+
+ToDo app - new features
+-----------------------
+-> allow users to upload images for individual todo.
+  - ex: users can upload screenshot for the bills that he have to pay (paying a bill is a todo)
+
+Chat app - new features
+-----------------------
+-> allowing users to quickly join the active rooms
+
+------------------------------------------------------------ what should we learn next?
+1. GraphQL
+    (or)
+2. ReactJS

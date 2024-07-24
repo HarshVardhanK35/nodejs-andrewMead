@@ -69,7 +69,13 @@ Commands to create SSH keys:
 --------------------------------------------------------
 -> to generate new key:
 1st cmd >>>
-      "ssh-keygen -t rsa -b C" >>> to generate a key pair -t(type of) rsa protocol (rsa does not have abbreviation); -b -> bits for a key... so the common value will be 4096 bits; last is capital "C" -> to provide comments
+      ssh-keygen -t rsa -b 4096 -C "any-comments" >>> 
+        - to generate a key pair -t(type of) rsa (a type of protocol) - (rsa does not have abbreviation); -b -> bits for a key... so the common value will be 4096 bits; last is capital "C" -> to provide comments
+                                                               |
+                                                            type of
+                                                            protocol
+-> after running the above command... it asks where to store the key... hit enter to store inside default folder
+-> press enter 2 times... when it asks for "passphrase"
 
 -> to start new private key if created:
 2nd cmd >>>
